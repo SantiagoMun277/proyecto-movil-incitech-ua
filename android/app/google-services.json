@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "425694976791",
+    "project_id": "proyecto-movil-incitech-ua",
+    "storage_bucket": "proyecto-movil-incitech-ua.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425694976791:android:ff2fadd004942bee917552",
+        "android_client_info": {
+          "package_name": "com.example.my_app_incitech_ua"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-SpMm84g4lekvNs0RjjWnor3-yityRbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
