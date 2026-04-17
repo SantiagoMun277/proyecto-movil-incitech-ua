@@ -1,16 +1,15 @@
-# my_app_incitech_ua
+# proyecto-movil-incitech-ua
 
-A new Flutter project.
+Proyecto final de Programación Móvil 2026-I - Ingeniería de Sistemas.
 
-## Getting Started
+## Descripción
+Este es el proyecto desarrollado para la asignatura de Programación Móvil. Incluye funcionalidades para la gestión de incidentes y estadísticas, integrado con Firebase.
 
-This project is a starting point for a Flutter application.
+## Primeros Pasos
+Este proyecto es un punto de partida para una aplicación Flutter.
 
-A few resources to get you started if this is your first Flutter project:
+Algunos recursos para comenzar:
+- [Lab: Escribe tu primera app en Flutter](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Muestras útiles de Flutter](https://docs.flutter.dev/cookbook)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Para ayuda sobre el desarrollo en Flutter, consulta la [documentación en línea](https://docs.flutter.dev/).
