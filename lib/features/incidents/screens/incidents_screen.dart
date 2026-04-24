@@ -156,21 +156,20 @@ bottomNavigationBar: const AppBottomNav(currentIndex: 0),
             return Column(
               children: [
                 SizedBox(height: h * 0.012),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: w * 0.03),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Image.asset(
-                          'assets/images/logo_incitech.png',
-                          width: w * 0.80,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+// Busca este bloque en tu Row
+Padding(
+  padding: EdgeInsets.symmetric(horizontal: w * 0.03),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.center, // Centra el logo horizontalmente
+    children: [
+      Image.asset(
+        'assets/images/logo_incitech.png',
+        width: w * 0.78, // <--- Aquí ya puedes jugar con el tamaño (0.50 es el 50% del ancho)
+        fit: BoxFit.contain,
+      ),
+    ],
+  ),
+),
                 SizedBox(height: h * 0.012),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: w * 0.035),

@@ -92,4 +92,9 @@ class UserService {
       'actualizadoEn': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
+  Future<String> obtenerRolUsuario(String uid) async {
+  final data = await obtenerUsuario(uid);
+  final rol = data?['rol']?.toString().trim().toLowerCase() ?? 'usuario';
+  return rol == 'admin' ? 'admin' : 'usuario';
+}
 }

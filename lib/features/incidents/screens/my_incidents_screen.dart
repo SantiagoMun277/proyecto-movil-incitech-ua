@@ -143,7 +143,7 @@ class _MyIncidentsScreenState extends State<MyIncidentsScreen> {
                     children: [
                       Image.asset(
                         'assets/images/logo_incitech.png',
-                        width: w * 0.99,
+                        width: w * 0.78,
                         fit: BoxFit.contain,
                       ),
                       const SizedBox(height: 2),

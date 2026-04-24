@@ -38,6 +38,12 @@ dependencies:
   firebase_auth: ^6.3.0
   cloud_firestore: ^6.2.0
   firebase_storage: ^13.2.0
+  geolocator: ^14.0.2
+  image_picker: ^1.2.1
+  flutter_map: ^8.3.0
+  latlong2: ^0.9.1
+  flutter_map_location_marker: ^10.2.0
+
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +72,7 @@ flutter:
     - assets/images/fondo_bienvenida.png
     - assets/images/logo_incitech.png
     - assets/images/logo_ua.png
+    - assets/images/ErrorImagen.png
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,8 +1,8 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:my_app_incitech_ua/features/auth/presentation/screens/login_screen.dart';
-import 'package:my_app_incitech_ua/features/auth/presentation/screens/register_screen.dart';
+import 'package:my_app_incitech_ua/features/auth/login_screen.dart';
+import 'package:my_app_incitech_ua/features/auth/register_screen.dart';
 import 'package:my_app_incitech_ua/features/incidents/screens/create_incident_screen.dart';
 import 'package:my_app_incitech_ua/features/incidents/screens/edit_incident_screen.dart';
 import 'package:my_app_incitech_ua/features/incidents/screens/incident_detail_screen.dart';
@@ -11,7 +11,9 @@ import 'package:my_app_incitech_ua/features/incidents/screens/my_incident_detail
 import 'package:my_app_incitech_ua/features/incidents/screens/my_incidents_screen.dart';
 import 'package:my_app_incitech_ua/features/profile/screens/profile_screen.dart';
 import 'package:my_app_incitech_ua/features/statistics/screens/statistics_screen.dart';
-import 'package:my_app_incitech_ua/features/welcome/presentation/screens/welcome_screen.dart';
+
+import '../../features/welcome/welcome_screen.dart';
+
 
 class AppRoutes {
   static const String welcome = '/';
