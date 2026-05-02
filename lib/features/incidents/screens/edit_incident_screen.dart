@@ -1,6 +1,8 @@
 
-// import 'dart:io';
 
+// import 'dart:typed_data';
+
+// import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter/material.dart';
 // import 'package:image_picker/image_picker.dart';
 
@@ -9,14 +11,13 @@
 // import 'package:my_app_incitech_ua/features/incidents/screens/map_location_picker_screen.dart';
 // import 'package:my_app_incitech_ua/features/incidents/widgets/gps_location_row.dart';
 // import 'package:my_app_incitech_ua/features/incidents/widgets/gps_location_status_card.dart';
+// import 'package:my_app_incitech_ua/features/incidents/widgets/incident_image.dart';
 // import 'package:my_app_incitech_ua/features/incidents/widgets/incident_option_sheet.dart';
 // import 'package:my_app_incitech_ua/features/incidents/widgets/photo_source_sheet.dart';
-
-// import '../../../services/image_service.dart';
-// import '../../../services/location_service.dart';
-
-
-
+// import 'package:my_app_incitech_ua/features/incidents/widgets/report_result_dialog.dart';
+// import 'package:my_app_incitech_ua/services/image_service.dart';
+// import 'package:my_app_incitech_ua/services/incident_service.dart';
+// import 'package:my_app_incitech_ua/services/location_service.dart';
 
 // class EditIncidentScreen extends StatefulWidget {
 //   const EditIncidentScreen({super.key});
@@ -40,9 +41,11 @@
 
 //   final LocationService _locationService = LocationService();
 //   final ImageService _imageService = ImageService();
+//   final IncidentService _incidentService = IncidentService();
 
 //   bool _loaded = false;
 //   bool _isGettingGps = false;
+//   bool _saving = false;
 
 //   double? _gpsLatitude;
 //   double? _gpsLongitude;
@@ -51,8 +54,11 @@
 //   String _selectedType = 'Seleccionar un tipo';
 //   String _selectedCampus = 'Sede Porvenir';
 
-//   String? _previewAssetPath;
+//   String? _previewImagePath;
 //   XFile? _selectedImageFile;
+//   Uint8List? _selectedImageBytes;
+
+//   IncidentItem? _incident;
 
 //   final List<String> _typeOptions = const [
 //     'Infraestructura',
@@ -80,53 +86,69 @@
 //     'Sede macagual',
 //   ];
 
-//   String _safeText(String? value, String fallback) {
-//     final text = value?.trim() ?? '';
-//     return text.isEmpty ? fallback : text;
-//   }
-
 //   @override
 //   void initState() {
 //     super.initState();
 //     _restoreLostImageIfNeeded();
 //   }
 
-//   Future<void> _restoreLostImageIfNeeded() async {
-//     final files = await _imageService.retrieveLostImages();
-//     if (!mounted || files.isEmpty) return;
-
-//     setState(() {
-//       _selectedImageFile = files.first;
-//       _previewAssetPath = null;
-//     });
-//   }
-
 //   @override
 //   void didChangeDependencies() {
 //     super.didChangeDependencies();
+
 //     if (_loaded) return;
 
-//     final incident = ModalRoute.of(context)?.settings.arguments as IncidentItem?;
+//     final incident = _readIncidentFromArgs(
+//       ModalRoute.of(context)?.settings.arguments,
+//     );
 
-//     _titleController.text = incident == null
-//         ? 'Falta de libros en la biblioteca'
-//         : _safeText(incident.title, 'Falta de libros en la biblioteca');
+//     _incident = incident;
 
-//     _locationTextController.text = 'Frente al bloque A, junto a la entrada principal';
+//     if (incident == null) {
+//       _titleController.text = '';
+//       _locationTextController.text = '';
+//       _descriptionController.text = '';
+//       _selectedType = 'Seleccionar un tipo';
+//       _selectedCampus = 'Sede Porvenir';
+//       _loaded = true;
+//       return;
+//     }
 
-//     _descriptionController.text = incident == null
-//         ? 'Se evidencia la falta de varios libros en la biblioteca, especialmente aquellos necesarios para el estudio y consulta de los estudiantes.'
-//         : _safeText(
-//             incident.description,
-//             'Se evidencia la falta de varios libros en la biblioteca, especialmente aquellos necesarios para el estudio y consulta de los estudiantes.',
-//           );
+//     final rawData = incident.rawData;
 
-//     _selectedType = incident == null
-//         ? 'Otros'
-//         : _safeText(incident.type, 'Otros');
+//     _titleController.text = _safeText(incident.title, '');
+//     _descriptionController.text = _safeText(incident.description, '');
 
-//     _selectedCampus = 'Sede Porvenir';
-//     _previewAssetPath = incident?.imagePath;
+//     final type = _safeText(incident.type, 'Otros');
+//     _selectedType = _typeOptions.contains(type) ? type : 'Otros';
+
+//     final campus = _readTextFromData(
+//       rawData,
+//       ['sede', 'campus'],
+//       fallback: 'Sede Porvenir',
+//     );
+
+//     _selectedCampus = _campusOptions.contains(campus)
+//         ? campus
+//         : 'Sede Porvenir';
+
+//     final locationText = _readTextFromData(
+//       rawData,
+//       [
+//         'ubicacionTextual',
+//         'ubicacionTexto',
+//         'locationText',
+//         'ubicacion',
+//         'location',
+//       ],
+//       fallback: incident.location,
+//     );
+
+//     _locationTextController.text = locationText;
+
+//     _previewImagePath = incident.imagePath;
+
+//     _loadGpsFromIncident(rawData);
 
 //     _loaded = true;
 //   }
@@ -137,6 +159,133 @@
 //     _locationTextController.dispose();
 //     _descriptionController.dispose();
 //     super.dispose();
+//   }
+
+//   IncidentItem? _readIncidentFromArgs(Object? args) {
+//     if (args is IncidentItem) {
+//       return args;
+//     }
+
+//     if (args is Map) {
+//       final value = args['incident'];
+
+//       if (value is IncidentItem) {
+//         return value;
+//       }
+//     }
+
+//     return null;
+//   }
+
+//   String _safeText(String? value, String fallback) {
+//     final text = value?.trim() ?? '';
+//     return text.isEmpty ? fallback : text;
+//   }
+
+//   String _readTextFromData(
+//     Map<String, dynamic> data,
+//     List<String> keys, {
+//     String fallback = '',
+//   }) {
+//     for (final key in keys) {
+//       final value = data[key];
+
+//       if (value == null) continue;
+
+//       final text = value.toString().trim();
+
+//       if (text.isNotEmpty && text != 'null') {
+//         return text;
+//       }
+//     }
+
+//     return fallback;
+//   }
+
+//   bool _readBool(dynamic value) {
+//     if (value == null) return false;
+
+//     if (value is bool) return value;
+
+//     if (value is num) return value == 1;
+
+//     final text = value.toString().trim().toLowerCase();
+
+//     return text == 'true' ||
+//         text == '1' ||
+//         text == 'si' ||
+//         text == 'sí' ||
+//         text == 'yes';
+//   }
+
+//   double? _readDouble(dynamic value) {
+//     if (value == null) return null;
+
+//     if (value is num) return value.toDouble();
+
+//     if (value is String) {
+//       return double.tryParse(value.trim());
+//     }
+
+//     return null;
+//   }
+
+//   void _loadGpsFromIncident(Map<String, dynamic> rawData) {
+//     final gps = rawData['gps'];
+
+//     if (gps is GeoPoint) {
+//       _gpsLatitude = gps.latitude;
+//       _gpsLongitude = gps.longitude;
+//       _gpsRegistrada = true;
+//       return;
+//     }
+
+//     _gpsLatitude = _readDouble(
+//       rawData['gpsLatitud'] ??
+//           rawData['gpsLatitude'] ??
+//           rawData['latitud'],
+//     );
+
+//     _gpsLongitude = _readDouble(
+//       rawData['gpsLongitud'] ??
+//           rawData['gpsLongitude'] ??
+//           rawData['longitud'],
+//     );
+
+//     final gpsFlag = _readBool(
+//       rawData['gpsRegistrada'] ??
+//           rawData['gpsRegistrado'] ??
+//           rawData['gpsRegistered'],
+//     );
+
+//     _gpsRegistrada = gpsFlag ||
+//         (_gpsLatitude != null && _gpsLongitude != null);
+//   }
+
+//   bool _isAssetPath(String? path) {
+//     if (path == null) return false;
+//     return path.trim().startsWith('assets/');
+//   }
+
+//   Future<void> _restoreLostImageIfNeeded() async {
+//     try {
+//       final files = await _imageService.retrieveLostImages();
+
+//       if (!mounted || files.isEmpty) return;
+
+//       final file = files.first;
+//       final bytes = await file.readAsBytes();
+
+//       if (!mounted) return;
+
+//       setState(() {
+//         _selectedImageFile = file;
+//         _selectedImageBytes = bytes;
+//         _previewImagePath = null;
+//       });
+//     } catch (error) {
+//       debugPrint('ERROR RECUPERANDO IMAGEN PERDIDA: $error');
+//     }
 //   }
 
 //   Future<void> _selectType() async {
@@ -188,6 +337,7 @@
 //       } else if (result.message.contains('permanentemente')) {
 //         await _locationService.openAppSettings();
 //       }
+
 //       return;
 //     }
 
@@ -210,7 +360,9 @@
 //     });
 
 //     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(content: Text('Ubicación GPS registrada correctamente.')),
+//       const SnackBar(
+//         content: Text('Ubicación GPS registrada correctamente.'),
+//       ),
 //     );
 //   }
 
@@ -236,7 +388,9 @@
 //     });
 
 //     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(content: Text('Ubicación GPS ajustada correctamente.')),
+//       const SnackBar(
+//         content: Text('Ubicación GPS ajustada correctamente.'),
+//       ),
 //     );
 //   }
 
@@ -256,42 +410,153 @@
 //       onCameraPick: _pickFromCamera,
 //       onGalleryPick: _pickFromGallery,
 //       initialFile: _selectedImageFile,
-//       initialAssetPath: _previewAssetPath,
+//       initialAssetPath: _isAssetPath(_previewImagePath)
+//           ? _previewImagePath
+//           : null,
 //     );
 
 //     if (!mounted || selected == null) return;
 
+//     final bytes = await selected.readAsBytes();
+
+//     if (!mounted) return;
+
 //     setState(() {
 //       _selectedImageFile = selected;
-//       _previewAssetPath = null;
+//       _selectedImageBytes = bytes;
+//       _previewImagePath = null;
 //     });
 
 //     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(content: Text('Imagen confirmada correctamente.')),
-//     );
-//   }
-
-//   void _guardarMock() {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: Text(
-//           'Luego guardaremos en la base.\n'
-//           'GPS: ${_gpsRegistrada ? 'sí' : 'no'}\n'
-//           'Lat: ${_gpsLatitude ?? '-'}\n'
-//           'Lng: ${_gpsLongitude ?? '-'}\n'
-//           'Texto: ${_locationTextController.text.trim()}',
-//         ),
+//       const SnackBar(
+//         content: Text('Imagen confirmada correctamente.'),
 //       ),
 //     );
 //   }
 
+//   bool _validarFormulario() {
+//     if (_incident == null) return false;
+//     if (_titleController.text.trim().isEmpty) return false;
+//     if (_selectedType.trim().isEmpty ||
+//         _selectedType == 'Seleccionar un tipo') {
+//       return false;
+//     }
+//     if (_selectedCampus.trim().isEmpty) return false;
+//     if (_locationTextController.text.trim().isEmpty) return false;
+//     if (_descriptionController.text.trim().isEmpty) return false;
+
+//     return true;
+//   }
+
+//   Future<void> _mostrarDialogoExito() async {
+//     await showDialog(
+//       context: context,
+//       barrierDismissible: true,
+//       builder: (_) => ReportResultDialog(
+//         isSuccess: true,
+//         title: 'Incidente Modificado\nCorrectamente',
+//         message: 'Los cambios del reporte se guardaron con éxito.',
+//         buttonText: 'Aceptar ↗',
+//         onButtonPressed: () {
+//           Navigator.pop(context);
+//           Navigator.pop(context, true);
+//         },
+//       ),
+//     );
+//   }
+
+//   Future<void> _mostrarDialogoError({
+//     String? message,
+//   }) async {
+//     await showDialog(
+//       context: context,
+//       barrierDismissible: true,
+//       builder: (_) => ReportResultDialog(
+//         isSuccess: false,
+//         title: 'Fallo al Modificar\nel Reporte',
+//         message: message ??
+//             'Hubo un problema al procesar los cambios.\n\nPor favor, verifique la información e intente nuevamente.',
+//         buttonText: 'Reintentar ↻',
+//         onButtonPressed: () {
+//           Navigator.pop(context);
+//         },
+//       ),
+//     );
+//   }
+
+//   Future<void> _guardarIncidente() async {
+//     if (_saving) return;
+
+//     final valido = _validarFormulario();
+
+//     if (!valido || _incident == null) {
+//       await _mostrarDialogoError(
+//         message:
+//             'Verifique que todos los campos estén completos antes de guardar.',
+//       );
+//       return;
+//     }
+
+//     setState(() {
+//       _saving = true;
+//     });
+
+//     try {
+//       await _incidentService.updateIncident(
+//         incidentId: _incident!.id,
+//         title: _titleController.text.trim(),
+//         description: _descriptionController.text.trim(),
+//         type: _selectedType,
+//         campus: _selectedCampus,
+//         locationText: _locationTextController.text.trim(),
+//         gpsRegistered: _gpsRegistrada,
+//         gpsLatitude: _gpsLatitude,
+//         gpsLongitude: _gpsLongitude,
+//         imageFile: _selectedImageFile,
+//       );
+
+//       if (!mounted) return;
+
+//       await _mostrarDialogoExito();
+//     } catch (error) {
+//       debugPrint('ERROR MODIFICANDO INCIDENTE: $error');
+
+//       if (!mounted) return;
+
+//       await _mostrarDialogoError(
+//         message:
+//             'No se pudo guardar el incidente.\n\n$error',
+//       );
+//     } finally {
+//       if (mounted) {
+//         setState(() {
+//           _saving = false;
+//         });
+//       }
+//     }
+//   }
+
 //   @override
 //   Widget build(BuildContext context) {
-//     final incident = ModalRoute.of(context)?.settings.arguments as IncidentItem?;
+//     final incident = _incident;
 //     final imagePath = incident?.imagePath;
 
-//     const fechaHora = '25/03/2026 - 16:35';
-//     const estado = 'Reportado';
+//     final fechaHora = incident?.date ?? '';
+//     final estado = incident?.status.label ?? 'Reportado';
+
+//     if (_loaded && incident == null) {
+//       return const Scaffold(
+//         backgroundColor: _backgroundColor,
+//         body: SafeArea(
+//           child: Center(
+//             child: Text(
+//               'No se encontró la información del incidente para modificar.',
+//               textAlign: TextAlign.center,
+//             ),
+//           ),
+//         ),
+//       );
+//     }
 
 //     return GestureDetector(
 //       onTap: () => FocusScope.of(context).unfocus(),
@@ -303,6 +568,7 @@
 //               final w = constraints.maxWidth;
 //               final h = constraints.maxHeight;
 //               final fontSize = w * 0.040;
+//               final double photoSectionWidth = w * 0.52;
 
 //               return SingleChildScrollView(
 //                 padding: EdgeInsets.fromLTRB(
@@ -319,7 +585,6 @@
 //                       fit: BoxFit.contain,
 //                     ),
 //                     SizedBox(height: h * 0.028),
-
 //                     Container(
 //                       width: double.infinity,
 //                       padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
@@ -344,9 +609,7 @@
 //                             fontSize: fontSize,
 //                             height: 38,
 //                           ),
-
 //                           const SizedBox(height: 18),
-
 //                           _buildLabel('Tipo de incidente', fontSize),
 //                           const SizedBox(height: 6),
 //                           _buildDropdownField(
@@ -354,10 +617,8 @@
 //                             fontSize: fontSize,
 //                             onTap: _selectType,
 //                           ),
-
 //                           const SizedBox(height: 26),
-
-//                           _buildLabel('Ubicación:', fontSize),
+//                           _buildLabel('Sede:', fontSize),
 //                           const SizedBox(height: 6),
 //                           _buildDropdownField(
 //                             text: _selectedCampus,
@@ -365,9 +626,7 @@
 //                             onTap: _selectCampus,
 //                             arrowColor: Colors.grey.shade600,
 //                           ),
-
 //                           const SizedBox(height: 12),
-
 //                           _buildLabel('Ubicación Textual', fontSize),
 //                           const SizedBox(height: 6),
 //                           _buildTextField(
@@ -375,28 +634,23 @@
 //                             fontSize: fontSize,
 //                             height: 38,
 //                           ),
-
 //                           const SizedBox(height: 12),
-
 //                           GpsLocationRow(
 //                             fontSize: fontSize,
 //                             onTap: _usarGps,
 //                             isLoading: _isGettingGps,
 //                           ),
-
 //                           const SizedBox(height: 12),
-
 //                           GpsLocationStatusCard(
 //                             fontSize: fontSize,
 //                             isRegistered: _gpsRegistrada,
 //                             latitude: _gpsLatitude,
 //                             longitude: _gpsLongitude,
-//                             onOpenMap:
-//                                 _gpsRegistrada ? _ajustarUbicacionEnMapa : null,
+//                             onOpenMap: _gpsRegistrada
+//                                 ? _ajustarUbicacionEnMapa
+//                                 : null,
 //                           ),
-
 //                           const SizedBox(height: 18),
-
 //                           _buildLabel('Descripción:', fontSize),
 //                           const SizedBox(height: 6),
 //                           _buildTextField(
@@ -405,89 +659,63 @@
 //                             maxLines: 8,
 //                             minLines: 8,
 //                           ),
-
 //                           const SizedBox(height: 20),
-
 //                           Center(
-//                             child: ClipRRect(
-//                               borderRadius: BorderRadius.circular(14),
-//                               child: _selectedImageFile != null
-//                                   ? Image.file(
-//                                       File(_selectedImageFile!.path),
-//                                       width: 140,
-//                                       height: 92,
-//                                       fit: BoxFit.cover,
-//                                       errorBuilder: (_, __, ___) =>
-//                                           _buildImagePlaceholder(),
-//                                     )
-//                                   : imagePath != null && imagePath.trim().isNotEmpty
-//                                       ? Image.asset(
-//                                           imagePath,
-//                                           width: 140,
-//                                           height: 92,
-//                                           fit: BoxFit.cover,
-//                                           errorBuilder: (_, __, ___) =>
-//                                               _buildImagePlaceholder(),
-//                                         )
-//                                       : _buildImagePlaceholder(),
-//                             ),
-//                           ),
-
-//                           const SizedBox(height: 10),
-
-//                           Row(
-//                             crossAxisAlignment: CrossAxisAlignment.center,
-//                             children: [
-//                               SizedBox(
-//                                 width: 42,
-//                                 child: Text(
-//                                   'Foto:',
-//                                   style: TextStyle(
-//                                     fontSize: fontSize,
-//                                     fontFamily: 'Times New Roman',
-//                                     color: _textColor,
+//                             child: SizedBox(
+//                               width: photoSectionWidth,
+//                               child: Column(
+//                                 children: [
+//                                   ClipRRect(
+//                                     borderRadius: BorderRadius.circular(14),
+//                                     child: _buildPreviewImage(
+//                                       width: photoSectionWidth,
+//                                       imagePath: imagePath,
+//                                     ),
 //                                   ),
-//                                 ),
-//                               ),
-//                               const SizedBox(width: 6),
-//                               Expanded(
-//                                 child: SizedBox(
-//                                   height: 40,
-//                                   child: ElevatedButton(
-//                                     onPressed: _openPhotoSheet,
-//                                     style: ElevatedButton.styleFrom(
-//                                       backgroundColor: const Color(0xFFA8B9AA),
-//                                       foregroundColor: Colors.black54,
-//                                       elevation: 0,
-//                                       shape: RoundedRectangleBorder(
-//                                         borderRadius: BorderRadius.circular(12),
-//                                         side: const BorderSide(
-//                                           color: _borderColor,
-//                                           width: 1,
+//                                   const SizedBox(height: 10),
+//                                   SizedBox(
+//                                     width: photoSectionWidth,
+//                                     height: 40,
+//                                     child: ElevatedButton(
+//                                       onPressed: _openPhotoSheet,
+//                                       style: ElevatedButton.styleFrom(
+//                                         backgroundColor:
+//                                             const Color(0xFFA8B9AA),
+//                                         foregroundColor: Colors.black54,
+//                                         elevation: 0,
+//                                         shape: RoundedRectangleBorder(
+//                                           borderRadius:
+//                                               BorderRadius.circular(12),
+//                                           side: const BorderSide(
+//                                             color: _borderColor,
+//                                             width: 1,
+//                                           ),
+//                                         ),
+//                                       ),
+//                                       child: Text(
+//                                         'Cambiar',
+//                                         style: TextStyle(
+//                                           fontSize: fontSize,
+//                                           fontFamily: 'Times New Roman',
 //                                         ),
 //                                       ),
 //                                     ),
-//                                     child: Text(
-//                                       'Cambiar',
-//                                       style: TextStyle(
-//                                         fontSize: fontSize,
-//                                         fontFamily: 'Times New Roman',
-//                                       ),
-//                                     ),
 //                                   ),
-//                                 ),
+//                                 ],
 //                               ),
-//                             ],
+//                             ),
 //                           ),
-
 //                           const SizedBox(height: 42),
-
-//                           _buildInfoRow('Fecha y hora:', fechaHora, fontSize),
-//                           const SizedBox(height: 12),
+//                           if (fechaHora.trim().isNotEmpty)
+//                             _buildInfoRow(
+//                               'Fecha y hora:',
+//                               fechaHora,
+//                               fontSize,
+//                             ),
+//                           if (fechaHora.trim().isNotEmpty)
+//                             const SizedBox(height: 12),
 //                           _buildInfoRow('Estado:', estado, fontSize),
-
 //                           const SizedBox(height: 28),
-
 //                           Row(
 //                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //                             children: [
@@ -495,10 +723,15 @@
 //                                 width: w * 0.34,
 //                                 height: 38,
 //                                 child: ElevatedButton(
-//                                   onPressed: () => Navigator.pop(context),
+//                                   onPressed: _saving
+//                                       ? null
+//                                       : () => Navigator.pop(context),
 //                                   style: ElevatedButton.styleFrom(
 //                                     backgroundColor: _primaryGreen,
 //                                     foregroundColor: Colors.white,
+//                                     disabledBackgroundColor:
+//                                         _primaryGreen.withOpacity(0.55),
+//                                     disabledForegroundColor: Colors.white,
 //                                     elevation: 0,
 //                                     shape: RoundedRectangleBorder(
 //                                       borderRadius: BorderRadius.circular(22),
@@ -517,17 +750,21 @@
 //                                 width: w * 0.34,
 //                                 height: 38,
 //                                 child: ElevatedButton(
-//                                   onPressed: _guardarMock,
+//                                   onPressed:
+//                                       _saving ? null : _guardarIncidente,
 //                                   style: ElevatedButton.styleFrom(
 //                                     backgroundColor: _primaryGreen,
 //                                     foregroundColor: Colors.white,
+//                                     disabledBackgroundColor:
+//                                         _primaryGreen.withOpacity(0.55),
+//                                     disabledForegroundColor: Colors.white,
 //                                     elevation: 0,
 //                                     shape: RoundedRectangleBorder(
 //                                       borderRadius: BorderRadius.circular(22),
 //                                     ),
 //                                   ),
 //                                   child: Text(
-//                                     'GUARDAR',
+//                                     _saving ? 'GUARDANDO...' : 'GUARDAR',
 //                                     style: TextStyle(
 //                                       fontSize: fontSize * 0.92,
 //                                       fontFamily: 'Times New Roman',
@@ -537,9 +774,7 @@
 //                               ),
 //                             ],
 //                           ),
-
 //                           const SizedBox(height: 26),
-
 //                           Center(
 //                             child: Text(
 //                               '¡UNIVERSIDAD DE LA AMAZONIA\nMAS CONECTADA QUE NUNCA!',
@@ -564,6 +799,34 @@
 //         ),
 //       ),
 //     );
+//   }
+
+//   Widget _buildPreviewImage({
+//     required double width,
+//     required String? imagePath,
+//   }) {
+//     if (_selectedImageBytes != null) {
+//       return Image.memory(
+//         _selectedImageBytes!,
+//         width: width,
+//         height: 110,
+//         fit: BoxFit.cover,
+//         errorBuilder: (context, error, stackTrace) {
+//           return _buildImagePlaceholder(width: width);
+//         },
+//       );
+//     }
+
+//     if (imagePath != null && imagePath.trim().isNotEmpty) {
+//       return IncidentImage(
+//         imagePath: imagePath,
+//         width: width,
+//         height: 110,
+//         fit: BoxFit.cover,
+//       );
+//     }
+
+//     return _buildImagePlaceholder(width: width);
 //   }
 
 //   Widget _buildLabel(String text, double fontSize) {
@@ -700,10 +963,10 @@
 //     );
 //   }
 
-//   Widget _buildImagePlaceholder() {
+//   Widget _buildImagePlaceholder({required double width}) {
 //     return Container(
-//       width: 140,
-//       height: 92,
+//       width: width,
+//       height: 110,
 //       decoration: BoxDecoration(
 //         color: Colors.grey.shade300,
 //         borderRadius: BorderRadius.circular(14),
@@ -716,8 +979,11 @@
 //     );
 //   }
 // }
-import 'dart:io';
 
+
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -726,12 +992,13 @@ import 'package:my_app_incitech_ua/features/incidents/models/selected_map_locati
 import 'package:my_app_incitech_ua/features/incidents/screens/map_location_picker_screen.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/gps_location_row.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/gps_location_status_card.dart';
+import 'package:my_app_incitech_ua/features/incidents/widgets/incident_image.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/incident_option_sheet.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/photo_source_sheet.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/report_result_dialog.dart';
-
-import '../../../services/image_service.dart';
-import '../../../services/location_service.dart';
+import 'package:my_app_incitech_ua/services/image_service.dart';
+import 'package:my_app_incitech_ua/services/incident_service.dart';
+import 'package:my_app_incitech_ua/services/location_service.dart';
 
 class EditIncidentScreen extends StatefulWidget {
   const EditIncidentScreen({super.key});
@@ -755,9 +1022,12 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
 
   final LocationService _locationService = LocationService();
   final ImageService _imageService = ImageService();
+  final IncidentService _incidentService = IncidentService();
 
   bool _loaded = false;
   bool _isGettingGps = false;
+  bool _saving = false;
+  bool _imageChangedByUser = false;
 
   double? _gpsLatitude;
   double? _gpsLongitude;
@@ -766,8 +1036,11 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
   String _selectedType = 'Seleccionar un tipo';
   String _selectedCampus = 'Sede Porvenir';
 
-  String? _previewAssetPath;
+  String? _previewImagePath;
   XFile? _selectedImageFile;
+  Uint8List? _selectedImageBytes;
+
+  IncidentItem? _incident;
 
   final List<String> _typeOptions = const [
     'Infraestructura',
@@ -795,53 +1068,69 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
     'Sede macagual',
   ];
 
-  String _safeText(String? value, String fallback) {
-    final text = value?.trim() ?? '';
-    return text.isEmpty ? fallback : text;
-  }
-
   @override
   void initState() {
     super.initState();
     _restoreLostImageIfNeeded();
   }
 
-  Future<void> _restoreLostImageIfNeeded() async {
-    final files = await _imageService.retrieveLostImages();
-    if (!mounted || files.isEmpty) return;
-
-    setState(() {
-      _selectedImageFile = files.first;
-      _previewAssetPath = null;
-    });
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     if (_loaded) return;
 
-    final incident = ModalRoute.of(context)?.settings.arguments as IncidentItem?;
+    final incident = _readIncidentFromArgs(
+      ModalRoute.of(context)?.settings.arguments,
+    );
 
-    _titleController.text = incident == null
-        ? 'Falta de libros en la biblioteca'
-        : _safeText(incident.title, 'Falta de libros en la biblioteca');
+    _incident = incident;
 
-    _locationTextController.text =
-        'Frente al bloque A, junto a la entrada principal';
+    if (incident == null) {
+      _titleController.text = '';
+      _locationTextController.text = '';
+      _descriptionController.text = '';
+      _selectedType = 'Seleccionar un tipo';
+      _selectedCampus = 'Sede Porvenir';
+      _loaded = true;
+      return;
+    }
 
-    _descriptionController.text = incident == null
-        ? 'Se evidencia la falta de varios libros en la biblioteca, especialmente aquellos necesarios para el estudio y consulta de los estudiantes.'
-        : _safeText(
-            incident.description,
-            'Se evidencia la falta de varios libros en la biblioteca, especialmente aquellos necesarios para el estudio y consulta de los estudiantes.',
-          );
+    final rawData = incident.rawData;
 
-    _selectedType =
-        incident == null ? 'Otros' : _safeText(incident.type, 'Otros');
+    _titleController.text = _safeText(incident.title, '');
+    _descriptionController.text = _safeText(incident.description, '');
 
-    _selectedCampus = 'Sede Porvenir';
-    _previewAssetPath = incident?.imagePath;
+    final type = _safeText(incident.type, 'Otros');
+    _selectedType = _typeOptions.contains(type) ? type : 'Otros';
+
+    final campus = _readTextFromData(
+      rawData,
+      ['sede', 'campus'],
+      fallback: 'Sede Porvenir',
+    );
+
+    _selectedCampus = _campusOptions.contains(campus)
+        ? campus
+        : 'Sede Porvenir';
+
+    final locationText = _readTextFromData(
+      rawData,
+      [
+        'ubicacionTextual',
+        'ubicacionTexto',
+        'locationText',
+        'ubicacion',
+        'location',
+      ],
+      fallback: incident.location,
+    );
+
+    _locationTextController.text = locationText;
+
+    _previewImagePath = incident.imagePath;
+
+    _loadGpsFromIncident(rawData);
 
     _loaded = true;
   }
@@ -852,6 +1141,119 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
     _locationTextController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  IncidentItem? _readIncidentFromArgs(Object? args) {
+    if (args is IncidentItem) {
+      return args;
+    }
+
+    if (args is Map) {
+      final value = args['incident'];
+
+      if (value is IncidentItem) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+  String _safeText(String? value, String fallback) {
+    final text = value?.trim() ?? '';
+    return text.isEmpty ? fallback : text;
+  }
+
+  String _readTextFromData(
+    Map<String, dynamic> data,
+    List<String> keys, {
+    String fallback = '',
+  }) {
+    for (final key in keys) {
+      final value = data[key];
+
+      if (value == null) continue;
+
+      final text = value.toString().trim();
+
+      if (text.isNotEmpty && text != 'null') {
+        return text;
+      }
+    }
+
+    return fallback;
+  }
+
+  bool _readBool(dynamic value) {
+    if (value == null) return false;
+
+    if (value is bool) return value;
+
+    if (value is num) return value == 1;
+
+    final text = value.toString().trim().toLowerCase();
+
+    return text == 'true' ||
+        text == '1' ||
+        text == 'si' ||
+        text == 'sí' ||
+        text == 'yes';
+  }
+
+  double? _readDouble(dynamic value) {
+    if (value == null) return null;
+
+    if (value is num) return value.toDouble();
+
+    if (value is String) {
+      return double.tryParse(value.trim());
+    }
+
+    return null;
+  }
+
+  void _loadGpsFromIncident(Map<String, dynamic> rawData) {
+    final gps = rawData['gps'];
+
+    if (gps is GeoPoint) {
+      _gpsLatitude = gps.latitude;
+      _gpsLongitude = gps.longitude;
+      _gpsRegistrada = true;
+      return;
+    }
+
+    _gpsLatitude = _readDouble(
+      rawData['gpsLatitud'] ??
+          rawData['gpsLatitude'] ??
+          rawData['latitud'],
+    );
+
+    _gpsLongitude = _readDouble(
+      rawData['gpsLongitud'] ??
+          rawData['gpsLongitude'] ??
+          rawData['longitud'],
+    );
+
+    final gpsFlag = _readBool(
+      rawData['gpsRegistrada'] ??
+          rawData['gpsRegistrado'] ??
+          rawData['gpsRegistered'],
+    );
+
+    _gpsRegistrada = gpsFlag ||
+        (_gpsLatitude != null && _gpsLongitude != null);
+  }
+
+  bool _isAssetPath(String? path) {
+    if (path == null) return false;
+    return path.trim().startsWith('assets/');
+  }
+
+  Future<void> _restoreLostImageIfNeeded() async {
+    // En edición no se recupera automáticamente una imagen perdida.
+    // Esto evita que una imagen vieja del picker se tome como "nueva"
+    // sin que el usuario haya presionado Cambiar.
+    return;
   }
 
   Future<void> _selectType() async {
@@ -903,6 +1305,7 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
       } else if (result.message.contains('permanentemente')) {
         await _locationService.openAppSettings();
       }
+
       return;
     }
 
@@ -925,7 +1328,9 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Ubicación GPS registrada correctamente.')),
+      const SnackBar(
+        content: Text('Ubicación GPS registrada correctamente.'),
+      ),
     );
   }
 
@@ -951,7 +1356,9 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Ubicación GPS ajustada correctamente.')),
+      const SnackBar(
+        content: Text('Ubicación GPS ajustada correctamente.'),
+      ),
     );
   }
 
@@ -971,27 +1378,42 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
       onCameraPick: _pickFromCamera,
       onGalleryPick: _pickFromGallery,
       initialFile: _selectedImageFile,
-      initialAssetPath: _previewAssetPath,
+      initialAssetPath: _isAssetPath(_previewImagePath)
+          ? _previewImagePath
+          : null,
     );
 
     if (!mounted || selected == null) return;
 
+    final bytes = await selected.readAsBytes();
+
+    if (!mounted) return;
+
     setState(() {
       _selectedImageFile = selected;
-      _previewAssetPath = null;
+      _selectedImageBytes = bytes;
+      _previewImagePath = null;
+      _imageChangedByUser = true;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Imagen confirmada correctamente.')),
+      const SnackBar(
+        content: Text('Imagen confirmada correctamente.'),
+      ),
     );
   }
 
   bool _validarFormulario() {
+    if (_incident == null) return false;
     if (_titleController.text.trim().isEmpty) return false;
-    if (_selectedType == 'Seleccionar un tipo') return false;
+    if (_selectedType.trim().isEmpty ||
+        _selectedType == 'Seleccionar un tipo') {
+      return false;
+    }
     if (_selectedCampus.trim().isEmpty) return false;
     if (_locationTextController.text.trim().isEmpty) return false;
     if (_descriptionController.text.trim().isEmpty) return false;
+
     return true;
   }
 
@@ -1006,20 +1428,22 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
         buttonText: 'Aceptar ↗',
         onButtonPressed: () {
           Navigator.pop(context);
-          Navigator.pop(context);
+          Navigator.pop(context, true);
         },
       ),
     );
   }
 
-  Future<void> _mostrarDialogoError() async {
+  Future<void> _mostrarDialogoError({
+    String? message,
+  }) async {
     await showDialog(
       context: context,
       barrierDismissible: true,
       builder: (_) => ReportResultDialog(
         isSuccess: false,
         title: 'Fallo al Modificar\nel Reporte',
-        message:
+        message: message ??
             'Hubo un problema al procesar los cambios.\n\nPor favor, verifique la información e intente nuevamente.',
         buttonText: 'Reintentar ↻',
         onButtonPressed: () {
@@ -1029,24 +1453,78 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
     );
   }
 
-  Future<void> _guardarMock() async {
+  Future<void> _guardarIncidente() async {
+    if (_saving) return;
+
     final valido = _validarFormulario();
 
-    if (!valido) {
-      await _mostrarDialogoError();
+    if (!valido || _incident == null) {
+      await _mostrarDialogoError(
+        message:
+            'Verifique que todos los campos estén completos antes de guardar.',
+      );
       return;
     }
 
-    await _mostrarDialogoExito();
+    setState(() {
+      _saving = true;
+    });
+
+    try {
+      await _incidentService.updateIncident(
+        incidentId: _incident!.id,
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        type: _selectedType,
+        campus: _selectedCampus,
+        locationText: _locationTextController.text.trim(),
+        gpsRegistered: _gpsRegistrada,
+        gpsLatitude: _gpsLatitude,
+        gpsLongitude: _gpsLongitude,
+        imageFile: _imageChangedByUser ? _selectedImageFile : null,
+      );
+
+      if (!mounted) return;
+
+      await _mostrarDialogoExito();
+    } catch (error) {
+      debugPrint('ERROR MODIFICANDO INCIDENTE: $error');
+
+      if (!mounted) return;
+
+      await _mostrarDialogoError(
+        message: 'No se pudo guardar el incidente.\n\n$error',
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final incident = ModalRoute.of(context)?.settings.arguments as IncidentItem?;
-    final imagePath = incident?.imagePath;
+    final incident = _incident;
+    final imagePath = _previewImagePath ?? incident?.imagePath;
 
-    const fechaHora = '25/03/2026 - 16:35';
-    const estado = 'Reportado';
+    final fechaHora = incident?.date ?? '';
+    final estado = incident?.status.label ?? 'Reportado';
+
+    if (_loaded && incident == null) {
+      return const Scaffold(
+        backgroundColor: _backgroundColor,
+        body: SafeArea(
+          child: Center(
+            child: Text(
+              'No se encontró la información del incidente para modificar.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -1108,7 +1586,7 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
                             onTap: _selectType,
                           ),
                           const SizedBox(height: 26),
-                          _buildLabel('Ubicación:', fontSize),
+                          _buildLabel('Sede:', fontSize),
                           const SizedBox(height: 6),
                           _buildDropdownField(
                             text: _selectedCampus,
@@ -1136,8 +1614,9 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
                             isRegistered: _gpsRegistrada,
                             latitude: _gpsLatitude,
                             longitude: _gpsLongitude,
-                            onOpenMap:
-                                _gpsRegistrada ? _ajustarUbicacionEnMapa : null,
+                            onOpenMap: _gpsRegistrada
+                                ? _ajustarUbicacionEnMapa
+                                : null,
                           ),
                           const SizedBox(height: 18),
                           _buildLabel('Descripción:', fontSize),
@@ -1149,7 +1628,6 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
                             minLines: 8,
                           ),
                           const SizedBox(height: 20),
-
                           Center(
                             child: SizedBox(
                               width: photoSectionWidth,
@@ -1157,32 +1635,10 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(14),
-                                    child: _selectedImageFile != null
-                                        ? Image.file(
-                                            File(_selectedImageFile!.path),
-                                            width: photoSectionWidth,
-                                            height: 110,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
-                                                _buildImagePlaceholder(
-                                              width: photoSectionWidth,
-                                            ),
-                                          )
-                                        : imagePath != null &&
-                                                imagePath.trim().isNotEmpty
-                                            ? Image.asset(
-                                                imagePath,
-                                                width: photoSectionWidth,
-                                                height: 110,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    _buildImagePlaceholder(
-                                                  width: photoSectionWidth,
-                                                ),
-                                              )
-                                            : _buildImagePlaceholder(
-                                                width: photoSectionWidth,
-                                              ),
+                                    child: _buildPreviewImage(
+                                      width: photoSectionWidth,
+                                      imagePath: imagePath,
+                                    ),
                                   ),
                                   const SizedBox(height: 10),
                                   SizedBox(
@@ -1217,10 +1673,15 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 42),
-                          _buildInfoRow('Fecha y hora:', fechaHora, fontSize),
-                          const SizedBox(height: 12),
+                          if (fechaHora.trim().isNotEmpty)
+                            _buildInfoRow(
+                              'Fecha y hora:',
+                              fechaHora,
+                              fontSize,
+                            ),
+                          if (fechaHora.trim().isNotEmpty)
+                            const SizedBox(height: 12),
                           _buildInfoRow('Estado:', estado, fontSize),
                           const SizedBox(height: 28),
                           Row(
@@ -1230,10 +1691,15 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
                                 width: w * 0.34,
                                 height: 38,
                                 child: ElevatedButton(
-                                  onPressed: () => Navigator.pop(context),
+                                  onPressed: _saving
+                                      ? null
+                                      : () => Navigator.pop(context),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _primaryGreen,
                                     foregroundColor: Colors.white,
+                                    disabledBackgroundColor:
+                                        _primaryGreen.withOpacity(0.55),
+                                    disabledForegroundColor: Colors.white,
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(22),
@@ -1252,17 +1718,21 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
                                 width: w * 0.34,
                                 height: 38,
                                 child: ElevatedButton(
-                                  onPressed: _guardarMock,
+                                  onPressed:
+                                      _saving ? null : _guardarIncidente,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _primaryGreen,
                                     foregroundColor: Colors.white,
+                                    disabledBackgroundColor:
+                                        _primaryGreen.withOpacity(0.55),
+                                    disabledForegroundColor: Colors.white,
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(22),
                                     ),
                                   ),
                                   child: Text(
-                                    'GUARDAR',
+                                    _saving ? 'GUARDANDO...' : 'GUARDAR',
                                     style: TextStyle(
                                       fontSize: fontSize * 0.92,
                                       fontFamily: 'Times New Roman',
@@ -1297,6 +1767,34 @@ class _EditIncidentScreenState extends State<EditIncidentScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildPreviewImage({
+    required double width,
+    required String? imagePath,
+  }) {
+    if (_selectedImageBytes != null) {
+      return Image.memory(
+        _selectedImageBytes!,
+        width: width,
+        height: 110,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildImagePlaceholder(width: width);
+        },
+      );
+    }
+
+    if (imagePath != null && imagePath.trim().isNotEmpty) {
+      return IncidentImage(
+        imagePath: imagePath,
+        width: width,
+        height: 110,
+        fit: BoxFit.cover,
+      );
+    }
+
+    return _buildImagePlaceholder(width: width);
   }
 
   Widget _buildLabel(String text, double fontSize) {

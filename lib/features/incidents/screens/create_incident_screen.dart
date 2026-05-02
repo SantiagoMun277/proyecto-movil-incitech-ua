@@ -1,5 +1,6 @@
-import 'dart:io';
 
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -9,9 +10,11 @@ import 'package:my_app_incitech_ua/features/incidents/widgets/gps_location_row.d
 import 'package:my_app_incitech_ua/features/incidents/widgets/gps_location_status_card.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/incident_option_sheet.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/photo_source_sheet.dart';
+import 'package:my_app_incitech_ua/features/incidents/widgets/picked_xfile_preview.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/report_result_dialog.dart';
 
 import '../../../services/image_service.dart';
+import '../../../services/incident_service.dart';
 import '../../../services/location_service.dart';
 
 class CreateIncidentScreen extends StatefulWidget {
@@ -36,8 +39,10 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
 
   final LocationService _locationService = LocationService();
   final ImageService _imageService = ImageService();
+  final IncidentService _incidentService = IncidentService();
 
   bool _isGettingGps = false;
+  bool _isSaving = false;
 
   double? _gpsLatitude;
   double? _gpsLongitude;
@@ -237,9 +242,13 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
   bool _validarFormulario() {
     if (_titleController.text.trim().isEmpty) return false;
     if (_selectedType == 'Seleccionar un tipo') return false;
-    if (_selectedCampus.trim().isEmpty) return false;
-    if (_locationTextController.text.trim().isEmpty) return false;
     if (_descriptionController.text.trim().isEmpty) return false;
+    if (_selectedImageFile == null) return false;
+
+    // La ubicación ahora es opcional:
+    // - sede opcional
+    // - ubicación textual opcional
+    // - GPS opcional
     return true;
   }
 
@@ -260,15 +269,15 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
     );
   }
 
-  Future<void> _mostrarDialogoError() async {
+  Future<void> _mostrarDialogoError([String? customMessage]) async {
     await showDialog(
       context: context,
       barrierDismissible: true,
       builder: (_) => ReportResultDialog(
         isSuccess: false,
         title: 'Fallo al Guardar\nel Reporte',
-        message:
-            'Hubo un problema al procesar su\nreporte.\n\nPor favor, verifique su conexión e\nintente nuevamente.',
+        message: customMessage ??
+            'Hubo un problema al procesar su\nreporte.\n\nPor favor, verifique la información e\nintente nuevamente.',
         buttonText: 'Reintentar ↻',
         onButtonPressed: () {
           Navigator.pop(context);
@@ -277,15 +286,76 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
     );
   }
 
-  Future<void> _guardarMock() async {
+  Future<void> _guardarIncidente() async {
     final valido = _validarFormulario();
 
     if (!valido) {
-      await _mostrarDialogoError();
+      await _mostrarDialogoError(
+        'Completa los campos obligatorios:\n\n• Título\n• Tipo de incidente\n• Descripción\n• Fotografía',
+      );
       return;
     }
 
-    await _mostrarDialogoExito();
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      await _mostrarDialogoError(
+        'No se encontró una sesión activa.\n\nInicia sesión nuevamente e inténtalo otra vez.',
+      );
+      return;
+    }
+
+    try {
+      setState(() {
+        _isSaving = true;
+      });
+
+      await _incidentService.createIncident(
+        uid: currentUser.uid,
+        title: _titleController.text,
+        type: _selectedType,
+        campus: _selectedCampus,
+        locationText: _locationTextController.text,
+        description: _descriptionController.text,
+        gpsRegistered: _gpsRegistrada,
+        gpsLatitude: _gpsLatitude,
+        gpsLongitude: _gpsLongitude,
+        imageFile: _selectedImageFile,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _isSaving = false;
+      });
+
+      await _mostrarDialogoExito();
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isSaving = false;
+      });
+
+      await _mostrarDialogoError(
+        'Hubo un problema al procesar su\nreporte.\n\nDetalle: $e',
+      );
+    }
+  }
+
+  Widget _buildImagePlaceholder({required double width}) {
+    return Container(
+      width: width,
+      height: 110,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: const Icon(
+        Icons.image_outlined,
+        size: 34,
+        color: Colors.white70,
+      ),
+    );
   }
 
   @override
@@ -343,7 +413,6 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                             fontSize: fontSize,
                             height: 38,
                           ),
-
                           const SizedBox(height: 18),
 
                           _buildLabel('Tipo de incidente', fontSize),
@@ -353,10 +422,9 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                             fontSize: fontSize,
                             onTap: _selectType,
                           ),
-
                           const SizedBox(height: 26),
 
-                          _buildLabel('Ubicación:', fontSize),
+                          _buildLabel('Ubicación (opcional):', fontSize),
                           const SizedBox(height: 6),
                           _buildDropdownField(
                             text: _selectedCampus,
@@ -364,17 +432,15 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                             onTap: _selectCampus,
                             arrowColor: Colors.grey.shade600,
                           ),
-
                           const SizedBox(height: 12),
 
-                          _buildLabel('Ubicación Textual', fontSize),
+                          _buildLabel('Ubicación Textual (opcional)', fontSize),
                           const SizedBox(height: 6),
                           _buildTextField(
                             controller: _locationTextController,
                             fontSize: fontSize,
                             height: 38,
                           ),
-
                           const SizedBox(height: 12),
 
                           GpsLocationRow(
@@ -382,7 +448,6 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                             onTap: _usarGps,
                             isLoading: _isGettingGps,
                           ),
-
                           const SizedBox(height: 12),
 
                           GpsLocationStatusCard(
@@ -393,7 +458,6 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                             onOpenMap:
                                 _gpsRegistrada ? _ajustarUbicacionEnMapa : null,
                           ),
-
                           const SizedBox(height: 18),
 
                           _buildLabel('Descripción:', fontSize),
@@ -404,7 +468,6 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                             maxLines: 8,
                             minLines: 8,
                           ),
-
                           const SizedBox(height: 20),
 
                           Center(
@@ -412,22 +475,15 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                               width: photoSectionWidth,
                               child: Column(
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(14),
-                                    child: _selectedImageFile != null
-                                        ? Image.file(
-                                            File(_selectedImageFile!.path),
-                                            width: photoSectionWidth,
-                                            height: 110,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
-                                                _buildImagePlaceholder(
-                                              width: photoSectionWidth,
-                                            ),
-                                          )
-                                        : _buildImagePlaceholder(
-                                            width: photoSectionWidth,
-                                          ),
+                                  PickedXFilePreview(
+                                    file: _selectedImageFile,
+                                    width: photoSectionWidth,
+                                    height: 110,
+                                    borderRadius: 14,
+                                    fit: BoxFit.cover,
+                                    placeholder: _buildImagePlaceholder(
+                                      width: photoSectionWidth,
+                                    ),
                                   ),
                                   const SizedBox(height: 10),
                                   SizedBox(
@@ -436,8 +492,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                     child: ElevatedButton(
                                       onPressed: _openPhotoSheet,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            const Color(0xFFA8B9AA),
+                                        backgroundColor: const Color(0xFFA8B9AA),
                                         foregroundColor: Colors.black54,
                                         elevation: 0,
                                         shape: RoundedRectangleBorder(
@@ -484,7 +539,9 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                 width: w * 0.34,
                                 height: 38,
                                 child: ElevatedButton(
-                                  onPressed: () => Navigator.pop(context),
+                                  onPressed: _isSaving
+                                      ? null
+                                      : () => Navigator.pop(context),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _primaryGreen,
                                     foregroundColor: Colors.white,
@@ -506,7 +563,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                 width: w * 0.34,
                                 height: 38,
                                 child: ElevatedButton(
-                                  onPressed: _guardarMock,
+                                  onPressed: _isSaving ? null : _guardarIncidente,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _primaryGreen,
                                     foregroundColor: Colors.white,
@@ -516,7 +573,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    'GUARDAR',
+                                    _isSaving ? 'GUARDANDO...' : 'GUARDAR',
                                     style: TextStyle(
                                       fontSize: fontSize * 0.92,
                                       fontFamily: 'Times New Roman',
@@ -685,22 +742,6 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildImagePlaceholder({required double width}) {
-    return Container(
-      width: width,
-      height: 110,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: const Icon(
-        Icons.image_outlined,
-        size: 34,
-        color: Colors.white70,
       ),
     );
   }

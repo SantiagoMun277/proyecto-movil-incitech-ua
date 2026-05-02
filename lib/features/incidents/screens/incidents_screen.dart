@@ -1,9 +1,10 @@
-
 import 'package:flutter/material.dart';
-import 'package:my_app_incitech_ua/shared/widgets/app_bottom_nav.dart';
-import 'package:my_app_incitech_ua/features/incidents/widgets/incident_card.dart';
+
 import 'package:my_app_incitech_ua/app/routes/app_routes.dart';
 import 'package:my_app_incitech_ua/features/incidents/models/incident_item.dart';
+import 'package:my_app_incitech_ua/features/incidents/widgets/incident_card.dart';
+import 'package:my_app_incitech_ua/services/incident_service.dart';
+import 'package:my_app_incitech_ua/shared/widgets/app_bottom_nav.dart';
 
 class IncidentsScreen extends StatefulWidget {
   const IncidentsScreen({super.key});
@@ -21,56 +22,10 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
   static const Color _borderColor = Color(0xFF3D3D3D);
 
   final TextEditingController _searchController = TextEditingController();
+  final IncidentService _incidentService = IncidentService();
 
   IncidentFilter _selectedFilter = IncidentFilter.todos;
   bool _isFilterExpanded = false;
-
-  final List<IncidentItem> _allIncidents = const [
-    IncidentItem(
-      id: '1',
-      title: 'Falta de libros en la biblioteca',
-      description:
-          'Se evidencia la falta de varios libros en la biblioteca, especialmente aquellos necesarios para el estudio y consulta de los estudiantes, lo que dificulta el acceso a material académico.',
-      date: '24/03/2026 14:49',
-      location: 'Sede Porvenir',
-      type: 'Otros',
-      status: IncidentStatus.reportado,
-      imagePath: 'assets/images/incidents/libros_biblioteca.jpg',
-    ),
-    IncidentItem(
-      id: '2',
-      title: 'Cafeterías colapsadas',
-      description:
-          'En horas pico las cafeterías presentan congestión, largas filas y retrasos en la atención a estudiantes.',
-      date: '23/03/2026 10:20',
-      location: 'Sede Porvenir',
-      type: 'Infraestructura',
-      status: IncidentStatus.reportado,
-      imagePath: 'assets/images/incidents/cafeterias.jpg',
-    ),
-    IncidentItem(
-      id: '3',
-      title: 'Ascensores averiados',
-      description:
-          'Los ascensores del edificio presentan fallas de funcionamiento, afectando la movilidad de estudiantes y personal.',
-      date: '22/03/2026 09:15',
-      location: 'Sede Juan XXIII',
-      type: 'Infraestructura',
-      status: IncidentStatus.enProceso,
-      imagePath: 'assets/images/incidents/ascensores.jpg',
-    ),
-    IncidentItem(
-      id: '4',
-      title: 'Internet caido',
-      description:
-          'Se reporta caída total del servicio de internet en varias zonas de la sede, afectando clases y procesos académicos.',
-      date: '21/03/2026 08:40',
-      location: 'Sede Macagual',
-      type: 'Conectividad / red',
-      status: IncidentStatus.resuelto,
-      imagePath: null,
-    ),
-  ];
 
   @override
   void dispose() {
@@ -78,10 +33,10 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
     super.dispose();
   }
 
-  List<IncidentItem> get _filteredIncidents {
+  List<IncidentItem> _applyFilters(List<IncidentItem> incidents) {
     final query = _searchController.text.trim().toLowerCase();
 
-    return _allIncidents.where((incident) {
+    return incidents.where((incident) {
       final matchesSearch =
           incident.title.toLowerCase().contains(query) ||
           incident.location.toLowerCase().contains(query) ||
@@ -89,19 +44,14 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
 
       final matchesFilter = switch (_selectedFilter) {
         IncidentFilter.todos => true,
-        IncidentFilter.reportado =>
-          incident.status == IncidentStatus.reportado,
-        IncidentFilter.enProceso =>
-          incident.status == IncidentStatus.enProceso,
-        IncidentFilter.resuelto =>
-          incident.status == IncidentStatus.resuelto,
+        IncidentFilter.reportado => incident.status == IncidentStatus.reportado,
+        IncidentFilter.enProceso => incident.status == IncidentStatus.enProceso,
+        IncidentFilter.resuelto => incident.status == IncidentStatus.resuelto,
       };
 
       return matchesSearch && matchesFilter;
     }).toList();
   }
-
-
 
   void _goToCreateIncident() {
     Navigator.pushNamed(context, AppRoutes.createIncident);
@@ -111,7 +61,10 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
     Navigator.pushNamed(
       context,
       AppRoutes.incidentDetail,
-      arguments: incident,
+      arguments: {
+        'incident': incident,
+        'canEditStatus': false,
+      },
     );
   }
 
@@ -131,6 +84,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
   void _selectFilter(IncidentFilter filter) {
     setState(() {
       _selectedFilter = filter;
+      _isFilterExpanded = false;
     });
   }
 
@@ -143,9 +97,13 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
         backgroundColor: _primaryGreen,
         elevation: 2,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 34),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 34,
+        ),
       ),
-bottomNavigationBar: const AppBottomNav(currentIndex: 0),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 0),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -156,20 +114,19 @@ bottomNavigationBar: const AppBottomNav(currentIndex: 0),
             return Column(
               children: [
                 SizedBox(height: h * 0.012),
-// Busca este bloque en tu Row
-Padding(
-  padding: EdgeInsets.symmetric(horizontal: w * 0.03),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.center, // Centra el logo horizontalmente
-    children: [
-      Image.asset(
-        'assets/images/logo_incitech.png',
-        width: w * 0.78, // <--- Aquí ya puedes jugar con el tamaño (0.50 es el 50% del ancho)
-        fit: BoxFit.contain,
-      ),
-    ],
-  ),
-),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: w * 0.03),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/images/logo_incitech.png',
+                        width: w * 0.78,
+                        fit: BoxFit.contain,
+                      ),
+                    ],
+                  ),
+                ),
                 SizedBox(height: h * 0.012),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: w * 0.035),
@@ -182,21 +139,62 @@ Padding(
                 ),
                 SizedBox(height: h * 0.015),
                 Expanded(
-                  child: ListView.separated(
-                    padding: EdgeInsets.fromLTRB(
-                      w * 0.035,
-                      0,
-                      w * 0.035,
-                      h * 0.02,
-                    ),
-                    itemCount: _filteredIncidents.length,
-                    separatorBuilder: (_, __) => SizedBox(height: h * 0.018),
-                    itemBuilder: (context, index) {
-                      final incident = _filteredIncidents[index];
-                  return IncidentCard(
-  incident: incident,
-  onTap: () => _openIncidentDetail(incident),
-);
+                  child: StreamBuilder<List<IncidentItem>>(
+                    stream: _incidentService.streamIncidents(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Error al cargar los incidentes.',
+                            style: TextStyle(
+                              fontSize: unifiedFontSize,
+                              fontFamily: 'Times New Roman',
+                              color: _textColor,
+                            ),
+                          ),
+                        );
+                      }
+
+                      final incidents = _applyFilters(snapshot.data ?? []);
+
+                      if (incidents.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No hay incidentes registrados.',
+                            style: TextStyle(
+                              fontSize: unifiedFontSize,
+                              fontFamily: 'Times New Roman',
+                              color: _textColor,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return ListView.separated(
+                        padding: EdgeInsets.fromLTRB(
+                          w * 0.035,
+                          0,
+                          w * 0.035,
+                          h * 0.02,
+                        ),
+                        itemCount: incidents.length,
+                        separatorBuilder: (_, __) => SizedBox(height: h * 0.018),
+                        itemBuilder: (context, index) {
+                          final incident = incidents[index];
+
+                          return IncidentCard(
+                            key: ValueKey(incident.id),
+                            incident: incident,
+                            onTap: () => _openIncidentDetail(incident),
+                          );
+                        },
+                      );
                     },
                   ),
                 ),
@@ -225,7 +223,10 @@ Padding(
         ),
         decoration: InputDecoration(
           border: InputBorder.none,
-          prefixIcon: const Icon(Icons.search, color: Colors.black54),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: Colors.black54,
+          ),
           hintText: 'Buscar incidente',
           hintStyle: TextStyle(
             fontSize: unifiedFontSize,
@@ -258,7 +259,6 @@ Padding(
             ),
           ),
           const SizedBox(height: 8),
-
           GestureDetector(
             onTap: () {
               setState(() {
@@ -271,7 +271,10 @@ Padding(
               decoration: BoxDecoration(
                 color: _cardColor,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: _borderColor, width: 1),
+                border: Border.all(
+                  color: _borderColor,
+                  width: 1,
+                ),
               ),
               child: Row(
                 children: [
@@ -311,11 +314,14 @@ Padding(
               ),
             ),
           ),
-
           if (_isFilterExpanded) ...[
             const SizedBox(height: 10),
-            _buildFilterOption(
-              label: 'Reportado',
+            _buildFilterOption(              label: 'Todos',
+              backgroundColor: const Color(0xFF84E09E),
+              onTap: () => _selectFilter(IncidentFilter.todos),
+            ),
+            const SizedBox(height: 9),
+            _buildFilterOption(              label: 'Reportado',
               backgroundColor: const Color(0xFFF47E7E),
               onTap: () => _selectFilter(IncidentFilter.reportado),
             ),
@@ -352,7 +358,10 @@ Padding(
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: _borderColor, width: 0.8),
+          border: Border.all(
+            color: _borderColor,
+            width: 0.8,
+          ),
         ),
         alignment: Alignment.centerLeft,
         child: Text(

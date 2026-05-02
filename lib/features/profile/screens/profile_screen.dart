@@ -108,13 +108,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final data = await _userService.obtenerUsuario(usuario.uid);
 
-      final nombre = _stringValue(data?['nombreCompleto']);
-      final correo = _stringValue(data?['correo']).isNotEmpty
-          ? _stringValue(data?['correo'])
+      final nombre = _stringValue(
+        data?['nombreCompleto'] ?? data?['nombre'] ?? data?['name'],
+      );
+      final correo = _stringValue(data?['correo'] ?? data?['email']).isNotEmpty
+          ? _stringValue(data?['correo'] ?? data?['email'])
           : (usuario.email ?? '');
 
       final genero = _opcionValida(
-        _stringValue(data?['genero']),
+        _stringValue(data?['genero'] ?? data?['sexo']),
         _genderOptions,
         'No responde',
       );
@@ -125,8 +127,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'Otros',
       );
 
-      final rol = _stringValue(data?['rol']).isNotEmpty
-          ? _stringValue(data?['rol'])
+      final rol = _stringValue(data?['rol'] ?? data?['role']).isNotEmpty
+          ? _stringValue(data?['rol'] ?? data?['role'])
           : 'usuario';
 
       if (!mounted) return;
@@ -341,6 +343,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _formatearRol(String rol) {
     final limpio = rol.trim().toLowerCase();
     if (limpio.isEmpty) return 'Usuario';
+    if (limpio.contains('admin')) return 'Administrador';
     return limpio[0].toUpperCase() + limpio.substring(1);
   }
 

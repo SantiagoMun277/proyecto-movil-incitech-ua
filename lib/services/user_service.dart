@@ -86,9 +86,6 @@ class UserService {
       'correo': correo.trim(),
       'genero': genero,
       'programa': programa,
-      'rol': 'usuario',
-      'estado': 'activo',
-      'fotoUrl': '',
       'actualizadoEn': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }

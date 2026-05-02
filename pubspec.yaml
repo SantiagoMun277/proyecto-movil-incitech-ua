@@ -39,10 +39,14 @@ dependencies:
   cloud_firestore: ^6.2.0
   firebase_storage: ^13.2.0
   geolocator: ^14.0.2
+  http: ^1.2.0
+  cached_network_image: ^3.3.1
   image_picker: ^1.2.1
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
   flutter_map_location_marker: ^10.2.0
+  url_launcher: ^6.3.2
+  fl_chart: ^1.2.0
 
 
 dev_dependencies:
