@@ -1,3 +1,271 @@
+
+
+// import 'package:flutter/material.dart';
+
+// import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+// import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
+// import 'package:my_app_incitech_ua/features/incidents/models/incident_item.dart';
+// import 'package:my_app_incitech_ua/features/incidents/widgets/incident_image.dart';
+// import 'package:my_app_incitech_ua/features/incidents/widgets/incident_status_chip.dart';
+
+// class IncidentCard extends StatelessWidget {
+//   const IncidentCard({
+//     super.key,
+//     required this.incident,
+//     required this.onTap,
+//   });
+
+//   final IncidentItem incident;
+//   final VoidCallback onTap;
+
+//   String get _fechaCorta {
+//     final value = incident.date.trim();
+//     if (value.isEmpty) return '';
+//     return value.split(' ').first;
+//   }
+
+//   bool get _tieneUbicacion {
+//     return incident.location.trim().isNotEmpty;
+//   }
+
+//   bool get _tieneTipo {
+//     return incident.type.trim().isNotEmpty;
+//   }
+
+//   String get _imageKeyValue {
+//     final path = incident.imagePath ?? '';
+//     final updateDate = incident.rawData['fechaActualizacion']?.toString() ??
+//         incident.rawData['updatedAt']?.toString() ??
+//         '';
+
+//     return '${incident.id}_${path}_$updateDate';
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final screenWidth = MediaQuery.of(context).size.width;
+
+//     final double titleFontSize = screenWidth < 360 ? 14.5 : 16;
+//     final double bodyFontSize = screenWidth < 360 ? 12.5 : 13.5;
+//     final double imageSize = screenWidth < 360 ? 86 : 102;
+
+//     final cleanTitle =
+//         incident.title.trim().isEmpty ? 'Sin título' : incident.title.trim();
+
+//     return Material(
+//       color: Colors.transparent,
+//       child: InkWell(
+//         borderRadius: BorderRadius.circular(20),
+//         onTap: onTap,
+//         splashColor: AppColors.primaryGreen.withOpacity(0.08),
+//         highlightColor: AppColors.primaryGreen.withOpacity(0.04),
+//         child: Container(
+//           width: double.infinity,
+//           margin: const EdgeInsets.symmetric(
+//             horizontal: 2,
+//             vertical: 5,
+//           ),
+//           padding: const EdgeInsets.all(12),
+//           decoration: BoxDecoration(
+//             color: AppColors.softWhite,
+//             borderRadius: BorderRadius.circular(20),
+//             border: Border.all(
+//               color: AppColors.borderColor.withOpacity(0.45),
+//               width: 1,
+//             ),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: AppColors.shadowGreen.withOpacity(0.22),
+//                 offset: const Offset(0, 5),
+//                 blurRadius: 12,
+//                 spreadRadius: 0,
+//               ),
+//             ],
+//           ),
+//           child: Row(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Expanded(
+//                 child: Padding(
+//                   padding: const EdgeInsets.only(right: 12),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       _buildHeader(
+//                         title: cleanTitle,
+//                         fontSize: titleFontSize,
+//                       ),
+//                       const SizedBox(height: 8),
+//                       if (_fechaCorta.isNotEmpty)
+//                         _buildInfoRow(
+//                           icon: Icons.calendar_month_rounded,
+//                           label: 'Fecha:',
+//                           value: _fechaCorta,
+//                           fontSize: bodyFontSize,
+//                           maxLines: 1,
+//                         ),
+//                       if (_tieneUbicacion)
+//                         _buildInfoRow(
+//                           icon: Icons.location_on_outlined,
+//                           label: 'Ubicación:',
+//                           value: incident.location,
+//                           fontSize: bodyFontSize,
+//                           maxLines: 1,
+//                         ),
+//                       if (_tieneTipo)
+//                         _buildInfoRow(
+//                           icon: Icons.category_outlined,
+//                           label: 'Tipo:',
+//                           value: incident.type,
+//                           fontSize: bodyFontSize,
+//                           maxLines: 1,
+//                         ),
+//                       const SizedBox(height: 10),
+//                       Row(
+//                         children: [
+//                           IncidentStatusChip(
+//                             status: incident.status,
+//                           ),
+//                           const Spacer(),
+//                           Row(
+//                             mainAxisSize: MainAxisSize.min,
+//                             children: [
+//                               Text(
+//                                 'Ver',
+//                                 style: AppTextStyles.semiBold(
+//                                   bodyFontSize,
+//                                   color: AppColors.primaryGreenDark,
+//                                 ),
+//                               ),
+//                               const SizedBox(width: 2),
+//                               const Icon(
+//                                 Icons.arrow_forward_ios_rounded,
+//                                 size: 13,
+//                                 color: AppColors.primaryGreenDark,
+//                               ),
+//                             ],
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//               Container(
+//                 padding: const EdgeInsets.all(3),
+//                 decoration: BoxDecoration(
+//                   color: AppColors.panelLight,
+//                   borderRadius: BorderRadius.circular(16),
+//                   border: Border.all(
+//                     color: AppColors.borderColor.withOpacity(0.45),
+//                     width: 1,
+//                   ),
+//                 ),
+//                 child: IncidentImage(
+//                   key: ValueKey(_imageKeyValue),
+//                   imagePath: incident.imagePath,
+//                   width: imageSize,
+//                   height: imageSize,
+//                   fit: BoxFit.cover,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildHeader({
+//     required String title,
+//     required double fontSize,
+//   }) {
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Container(
+//           width: 30,
+//           height: 30,
+//           decoration: BoxDecoration(
+//             color: AppColors.primaryGreen.withOpacity(0.12),
+//             borderRadius: BorderRadius.circular(10),
+//           ),
+//           child: const Icon(
+//             Icons.report_problem_outlined,
+//             size: 18,
+//             color: AppColors.primaryGreenDark,
+//           ),
+//         ),
+//         const SizedBox(width: 8),
+//         Expanded(
+//           child: Text(
+//             title,
+//             maxLines: 2,
+//             overflow: TextOverflow.ellipsis,
+//             style: AppTextStyles.extraBold(
+//               fontSize,
+//               color: AppColors.textPrimary,
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _buildInfoRow({
+//     required IconData icon,
+//     required String label,
+//     required String value,
+//     required double fontSize,
+//     required int maxLines,
+//   }) {
+//     final cleanValue = value.trim();
+
+//     if (cleanValue.isEmpty) {
+//       return const SizedBox.shrink();
+//     }
+
+//     return Padding(
+//       padding: const EdgeInsets.only(bottom: 5),
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Icon(
+//             icon,
+//             size: fontSize + 2,
+//             color: AppColors.textSecondary,
+//           ),
+//           const SizedBox(width: 6),
+//           Expanded(
+//             child: Text.rich(
+//               TextSpan(
+//                 children: [
+//                   TextSpan(
+//                     text: '$label ',
+//                     style: AppTextStyles.semiBold(
+//                       fontSize,
+//                       color: AppColors.textPrimary,
+//                     ),
+//                   ),
+//                   TextSpan(
+//                     text: cleanValue,
+//                     style: AppTextStyles.regular(
+//                       fontSize,
+//                       color: AppColors.textSecondary,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               maxLines: maxLines,
+//               overflow: TextOverflow.ellipsis,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 
 import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
@@ -22,8 +290,15 @@ class IncidentCard extends StatelessWidget {
     return value.split(' ').first;
   }
 
-  bool get _tieneUbicacion {
-    return incident.location.trim().isNotEmpty;
+  bool get _tieneFecha => _fechaCorta.isNotEmpty;
+
+  bool get _tieneUbicacion => incident.location.trim().isNotEmpty;
+
+  bool get _tieneTipo => incident.type.trim().isNotEmpty;
+
+  String get _tituloLimpio {
+    final value = incident.title.trim();
+    return value.isEmpty ? 'Sin título' : value;
   }
 
   String get _imageKeyValue {
@@ -38,89 +313,212 @@ class IncidentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final double fontSize = screenWidth * 0.036;
+
+    final double titleSize = screenWidth < 360 ? 15.5 : 17.5;
+    final double bodySize = screenWidth < 360 ? 12.5 : 13.5;
+    final double imageHeight = screenWidth < 360 ? 170 : 190;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        splashColor: AppColors.primaryGreen.withOpacity(0.08),
+        highlightColor: AppColors.primaryGreen.withOpacity(0.04),
         child: Container(
           width: double.infinity,
-          constraints: const BoxConstraints(
-            minHeight: 96,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 4,
+            vertical: 8,
           ),
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
           decoration: BoxDecoration(
             color: AppColors.softWhite,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: const [
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppColors.borderColor.withOpacity(0.40),
+              width: 1,
+            ),
+            boxShadow: [
               BoxShadow(
-                color: AppColors.shadowGreen,
-                offset: Offset(3, 4),
-                blurRadius: 4,
+                color: AppColors.shadowGreen.withOpacity(0.22),
+                offset: const Offset(0, 8),
+                blurRadius: 16,
               ),
             ],
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildImageSection(
+                  imageHeight: imageHeight,
+                  titleSize: titleSize,
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildTextLine(
-                        label: 'Titulo:',
-                        value: incident.title,
-                        fontSize: fontSize,
-                        maxLines: 2,
-                      ),
-                      if (_fechaCorta.isNotEmpty)
-                        _buildTextLine(
-                          label: 'Fecha:',
-                          value: _fechaCorta,
-                          fontSize: fontSize,
-                          maxLines: 1,
-                        ),
-                      if (_tieneUbicacion)
-                        _buildTextLine(
-                          label: 'Ubicación:',
-                          value: incident.location,
-                          fontSize: fontSize,
-                          maxLines: 1,
-                        ),
-                      const SizedBox(height: 5),
-                      SizedBox(
-                        height: 25,
-                        child: IncidentStatusChip(
-                          status: incident.status,
-                        ),
-                      ),
+                      _buildInfoPanel(bodySize),
+                      const SizedBox(height: 12),
+                      _buildActionHint(bodySize),
                     ],
                   ),
                 ),
-              ),
-              IncidentImage(
-                key: ValueKey(_imageKeyValue),
-                imagePath: incident.imagePath,
-                width: 99,
-                height: 100,
-                fit: BoxFit.cover,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTextLine({
+  Widget _buildImageSection({
+    required double imageHeight,
+    required double titleSize,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            IncidentImage(
+              key: ValueKey(_imageKeyValue),
+              imagePath: incident.imagePath,
+              width: constraints.maxWidth,
+              height: imageHeight,
+              fit: BoxFit.cover,
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.02),
+                      Colors.black.withOpacity(0.10),
+                      Colors.black.withOpacity(0.60),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 14,
+              right: 14,
+              top: 12,
+              child: Center(
+                child: IncidentStatusChip(
+                  status: incident.status,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 14,
+              right: 14,
+              bottom: 14,
+              child: Text(
+                _tituloLimpio,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.extraBold(
+                  titleSize,
+                  color: AppColors.white,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoPanel(double fontSize) {
+    final rows = <Widget>[];
+
+    if (_tieneFecha) {
+      rows.add(
+        _buildInfoRow(
+          icon: Icons.calendar_today_rounded,
+          label: 'Fecha:',
+          value: _fechaCorta,
+          fontSize: fontSize,
+        ),
+      );
+    }
+
+    if (_tieneUbicacion) {
+      rows.add(
+        _buildInfoRow(
+          icon: Icons.location_on_outlined,
+          label: 'Ubicación:',
+          value: incident.location,
+          fontSize: fontSize,
+        ),
+      );
+    }
+
+    if (_tieneTipo) {
+      rows.add(
+        _buildInfoRow(
+          icon: Icons.account_tree_outlined,
+          label: 'Tipo:',
+          value: incident.type,
+          fontSize: fontSize,
+        ),
+      );
+    }
+
+    if (rows.isEmpty) {
+      rows.add(
+        _buildInfoRow(
+          icon: Icons.info_outline_rounded,
+          label: 'Información:',
+          value: 'Sin datos adicionales',
+          fontSize: fontSize,
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 10,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.panelLight.withOpacity(0.88),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.borderColor.withOpacity(0.30),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < rows.length; i++) ...[
+            rows[i],
+            if (i != rows.length - 1)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7),
+                child: Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: AppColors.borderColor.withOpacity(0.22),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
     required String label,
     required String value,
     required double fontSize,
-    required int maxLines,
   }) {
     final cleanValue = value.trim();
 
@@ -128,23 +526,83 @@ class IncidentCard extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 1),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: '$label ',
-              style: AppTextStyles.extraBold(fontSize),
-            ),
-            TextSpan(
-              text: cleanValue,
-              style: AppTextStyles.regular(fontSize),
-            ),
-          ],
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(
+            icon,
+            size: 16,
+            color: AppColors.textSecondary,
+          ),
         ),
-        maxLines: maxLines,
-        overflow: TextOverflow.ellipsis,
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: '$label ',
+                  style: AppTextStyles.extraBold(
+                    fontSize,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                TextSpan(
+                  text: cleanValue,
+                  style: AppTextStyles.regular(
+                    fontSize,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionHint(double fontSize) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.primaryGreen,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.visibility_outlined,
+            size: 19,
+            color: AppColors.white,
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              'Ver detalle del incidente',
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.button(
+                fontSize,
+                color: AppColors.white,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(
+            Icons.arrow_forward_rounded,
+            size: 18,
+            color: AppColors.white,
+          ),
+        ],
       ),
     );
   }
