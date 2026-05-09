@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 import 'package:my_app_incitech_ua/app/routes/app_routes.dart';
 
 class AppBottomNav extends StatelessWidget {
@@ -9,7 +11,7 @@ class AppBottomNav extends StatelessWidget {
 
   final int currentIndex;
 
-  static const Color _primaryGreen = Color(0xFF0C7A27);
+  static const Color _primaryGreen = AppColors.primaryGreenAlt;
 
   void _onTap(BuildContext context, int index) {
     if (index == currentIndex) return;
@@ -38,14 +40,14 @@ class AppBottomNav extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: _primaryGreen,
       unselectedItemColor: Colors.grey,
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.panelLight,
       selectedLabelStyle: const TextStyle(
-        fontFamily: 'Times New Roman',
+        fontFamily: AppTextStyles.fontFamily,
         fontWeight: FontWeight.w600,
         fontSize: 12,
       ),
       unselectedLabelStyle: const TextStyle(
-        fontFamily: 'Times New Roman',
+        fontFamily: AppTextStyles.fontFamily,
         fontSize: 12,
       ),
       items: const [
@@ -73,3 +75,5 @@ class AppBottomNav extends StatelessWidget {
     );
   }
 }
+
+

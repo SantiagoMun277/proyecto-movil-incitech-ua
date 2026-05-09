@@ -3,6 +3,8 @@
 // import 'package:flutter/material.dart';
 // import 'package:url_launcher/url_launcher.dart';
 
+// import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+// import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 // import 'package:my_app_incitech_ua/features/incidents/models/incident_item.dart';
 // import 'package:my_app_incitech_ua/features/incidents/widgets/incident_image.dart';
 // import 'package:my_app_incitech_ua/services/auth_service.dart';
@@ -26,12 +28,12 @@
 // }
 
 // class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
-//   static const Color _backgroundColor = Color(0xFFB8DEBE);
-//   static const Color _cardColor = Color(0xFFF2F2F2);
-//   static const Color _primaryGreen = Color(0xFF0C7A27);
-//   static const Color _textColor = Color(0xFF222222);
-//   static const Color _shadowGreen = Color(0x664FA96A);
-//   static const Color _borderColor = Color(0xFF6A6A6A);
+//   static const Color _backgroundColor = AppColors.backgroundGreen;
+//   static const Color _cardColor = AppColors.softWhite;
+//   static const Color _primaryGreen = AppColors.primaryGreen;
+//   static const Color _textColor = AppColors.textDark;
+//   static const Color _shadowGreen = AppColors.shadowGreen;
+//   static const Color _borderColor = AppColors.borderColor;
 
 //   final AuthService _authService = AuthService();
 //   final UserService _userService = UserService();
@@ -41,10 +43,12 @@
 //   bool _statusInitialized = false;
 //   bool _savingStatus = false;
 //   bool _loadingRole = true;
+//   bool _hasPendingStatusChange = false;
 
 //   String _selectedStatus = 'Reportado';
 //   String _rolActual = 'usuario';
 //   String? _fechaActualizacionLocal;
+//   String? _statusIncidentId;
 
 //   final List<String> _statusOptions = const [
 //     'Reportado',
@@ -159,16 +163,42 @@
 //     }
 //   }
 
+//   void _syncStatusWithIncident(IncidentItem incident) {
+//     if (_statusIncidentId != incident.id) {
+//       _statusIncidentId = incident.id;
+//       _selectedStatus = incident.status.label;
+//       _statusInitialized = true;
+//       _fechaActualizacionLocal = null;
+//       _hasPendingStatusChange = false;
+//       return;
+//     }
+
+//     if (!_statusInitialized) {
+//       _selectedStatus = incident.status.label;
+//       _statusInitialized = true;
+//       _hasPendingStatusChange = false;
+//       return;
+//     }
+
+//     if (_savingStatus || _isStatusExpanded || _hasPendingStatusChange) {
+//       return;
+//     }
+
+//     if (incident.status.label != _selectedStatus) {
+//       _selectedStatus = incident.status.label;
+//     }
+//   }
+
 //   Color _statusColor(String status) {
 //     switch (status) {
 //       case 'Reportado':
-//         return const Color(0xFFF47E7E);
+//         return AppColors.reported;
 //       case 'En Proceso':
-//         return const Color(0xFFF2C45E);
+//         return AppColors.inProgress;
 //       case 'Resuelto':
-//         return const Color(0xFF7BE48E);
+//         return AppColors.resolved;
 //       default:
-//         return const Color(0xFFF4F4F4);
+//         return AppColors.surfaceLight;
 //     }
 //   }
 
@@ -182,6 +212,16 @@
 //       default:
 //         return 'reportado';
 //     }
+//   }
+
+//   ButtonStyle _primaryButtonStyle() {
+//     return ElevatedButton.styleFrom(
+//       backgroundColor: _primaryGreen,
+//       foregroundColor: AppColors.white,
+//       disabledBackgroundColor: _primaryGreen.withOpacity(0.55),
+//       disabledForegroundColor: AppColors.white,
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+//     );
 //   }
 
 //   bool _readBool(dynamic value) {
@@ -265,9 +305,8 @@
 //   }
 
 //   bool _readGpsRegistered(Map<String, dynamic> data) {
-//     final value = data['gpsRegistrada'] ??
-//         data['gpsRegistrado'] ??
-//         data['gpsRegistered'];
+//     final value =
+//         data['gpsRegistrada'] ?? data['gpsRegistrado'] ?? data['gpsRegistered'];
 
 //     return _readBool(value);
 //   }
@@ -344,9 +383,7 @@
 //       if (!mounted) return;
 
 //       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Text('No se pudo abrir la ubicación: $error'),
-//         ),
+//         SnackBar(content: Text('No se pudo abrir la ubicación: $error')),
 //       );
 //     }
 //   }
@@ -370,12 +407,11 @@
 
 //       setState(() {
 //         _fechaActualizacionLocal = nowText;
+//         _hasPendingStatusChange = false;
 //       });
 
 //       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Text('Estado actualizado a: $_selectedStatus'),
-//         ),
+//         SnackBar(content: Text('Estado actualizado a: $_selectedStatus')),
 //       );
 //     } catch (error) {
 //       debugPrint('ERROR ACTUALIZANDO ESTADO DEL INCIDENTE: $error');
@@ -383,9 +419,7 @@
 //       if (!mounted) return;
 
 //       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Text('No se pudo actualizar el estado: $error'),
-//         ),
+//         SnackBar(content: Text('No se pudo actualizar el estado: $error')),
 //       );
 //     } finally {
 //       if (mounted) {
@@ -396,12 +430,21 @@
 //     }
 //   }
 
-//   void _abrirModificarIncidente(IncidentItem incident) {
-//     Navigator.pushNamed(
+//   Future<void> _abrirModificarIncidente(IncidentItem incident) async {
+//     final updated = await Navigator.pushNamed(
 //       context,
 //       widget.modifyRouteName,
 //       arguments: incident,
 //     );
+
+//     if (!mounted) return;
+
+//     if (updated == true) {
+//       setState(() {
+//         _fechaActualizacionLocal = null;
+//         _statusInitialized = false;
+//       });
+//     }
 //   }
 
 //   bool _isCurrentUserOwner(IncidentItem incident) {
@@ -440,21 +483,11 @@
 //           children: [
 //             TextSpan(
 //               text: '$label ',
-//               style: TextStyle(
-//                 fontSize: fontSize,
-//                 fontFamily: 'Times New Roman',
-//                 fontWeight: FontWeight.w800,
-//                 color: _textColor,
-//               ),
+//               style: AppTextStyles.extraBold(fontSize, color: _textColor),
 //             ),
 //             TextSpan(
 //               text: value,
-//               style: TextStyle(
-//                 fontSize: fontSize,
-//                 fontFamily: 'Times New Roman',
-//                 fontWeight: FontWeight.w400,
-//                 color: _textColor,
-//               ),
+//               style: AppTextStyles.regular(fontSize, color: _textColor),
 //             ),
 //           ],
 //         ),
@@ -475,33 +508,23 @@
 //       children: [
 //         Text(
 //           'Descripción:',
-//           style: TextStyle(
-//             fontSize: fontSize,
-//             fontFamily: 'Times New Roman',
-//             fontWeight: FontWeight.w800,
-//             color: _textColor,
-//           ),
+//           style: AppTextStyles.extraBold(fontSize, color: _textColor),
 //         ),
 //         const SizedBox(height: 4),
 //         Container(
 //           width: double.infinity,
 //           padding: const EdgeInsets.all(10),
 //           decoration: BoxDecoration(
-//             color: const Color(0xFFF8F8F8),
+//             color: AppColors.surfaceLight,
 //             borderRadius: BorderRadius.circular(12),
-//             border: Border.all(
-//               color: _borderColor,
-//               width: 1,
-//             ),
+//             border: Border.all(color: _borderColor, width: 1),
 //           ),
 //           child: Text(
 //             description,
-//             style: TextStyle(
-//               fontSize: fontSize,
-//               fontFamily: 'Times New Roman',
+//             style: AppTextStyles.regular(
+//               fontSize,
 //               color: _textColor,
-//               height: 1.08,
-//             ),
+//             ).copyWith(height: 1.08),
 //           ),
 //         ),
 //       ],
@@ -518,41 +541,25 @@
 //       children: [
 //         Text(
 //           'Ubicación GPS:',
-//           style: TextStyle(
-//             fontSize: fontSize,
-//             fontFamily: 'Times New Roman',
-//             fontWeight: FontWeight.w800,
-//             color: _textColor,
-//           ),
+//           style: AppTextStyles.extraBold(fontSize, color: _textColor),
 //         ),
 //         const SizedBox(height: 6),
 //         Container(
 //           width: double.infinity,
 //           padding: const EdgeInsets.all(12),
 //           decoration: BoxDecoration(
-//             color: const Color(0xFFF8F8F8),
+//             color: AppColors.surfaceLight,
 //             borderRadius: BorderRadius.circular(14),
-//             border: Border.all(
-//               color: _borderColor,
-//               width: 1,
-//             ),
+//             border: Border.all(color: _borderColor, width: 1),
 //           ),
 //           child: Column(
 //             children: [
-//               const Icon(
-//                 Icons.location_on,
-//                 color: _primaryGreen,
-//                 size: 38,
-//               ),
+//               const Icon(Icons.location_on, color: _primaryGreen, size: 38),
 //               const SizedBox(height: 6),
 //               Text(
 //                 'La ubicación GPS fue registrada para este incidente.',
 //                 textAlign: TextAlign.center,
-//                 style: TextStyle(
-//                   fontSize: fontSize,
-//                   fontFamily: 'Times New Roman',
-//                   color: _textColor,
-//                 ),
+//                 style: AppTextStyles.regular(fontSize, color: _textColor),
 //               ),
 //               const SizedBox(height: 10),
 //               SizedBox(
@@ -560,27 +567,14 @@
 //                 height: 42,
 //                 child: ElevatedButton.icon(
 //                   onPressed: () {
-//                     _abrirGoogleMaps(
-//                       latitude: latitude,
-//                       longitude: longitude,
-//                     );
+//                     _abrirGoogleMaps(latitude: latitude, longitude: longitude);
 //                   },
 //                   icon: const Icon(Icons.map_outlined),
 //                   label: Text(
 //                     'ABRIR EN GOOGLE MAPS',
-//                     style: TextStyle(
-//                       fontSize: fontSize * 0.90,
-//                       fontFamily: 'Times New Roman',
-//                       fontWeight: FontWeight.w700,
-//                     ),
+//                     style: AppTextStyles.button(fontSize * 0.90),
 //                   ),
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: _primaryGreen,
-//                     foregroundColor: Colors.white,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(24),
-//                     ),
-//                   ),
+//                   style: _primaryButtonStyle(),
 //                 ),
 //               ),
 //             ],
@@ -601,21 +595,8 @@
 //         height: 44,
 //         child: ElevatedButton(
 //           onPressed: () => Navigator.pop(context),
-//           style: ElevatedButton.styleFrom(
-//             backgroundColor: _primaryGreen,
-//             foregroundColor: Colors.white,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(24),
-//             ),
-//           ),
-//           child: Text(
-//             'VOLVER',
-//             style: TextStyle(
-//               fontSize: fontSize,
-//               fontFamily: 'Times New Roman',
-//               fontWeight: FontWeight.w700,
-//             ),
-//           ),
+//           style: _primaryButtonStyle(),
+//           child: Text('VOLVER', style: AppTextStyles.button(fontSize)),
 //         ),
 //       );
 //     }
@@ -627,21 +608,8 @@
 //             height: 44,
 //             child: ElevatedButton(
 //               onPressed: () => Navigator.pop(context),
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor: _primaryGreen,
-//                 foregroundColor: Colors.white,
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(24),
-//                 ),
-//               ),
-//               child: Text(
-//                 'VOLVER',
-//                 style: TextStyle(
-//                   fontSize: fontSize,
-//                   fontFamily: 'Times New Roman',
-//                   fontWeight: FontWeight.w700,
-//                 ),
-//               ),
+//               style: _primaryButtonStyle(),
+//               child: Text('VOLVER', style: AppTextStyles.button(fontSize)),
 //             ),
 //           ),
 //         ),
@@ -651,21 +619,8 @@
 //             height: 44,
 //             child: ElevatedButton(
 //               onPressed: () => _abrirModificarIncidente(incident),
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor: _primaryGreen,
-//                 foregroundColor: Colors.white,
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(24),
-//                 ),
-//               ),
-//               child: Text(
-//                 'MODIFICAR',
-//                 style: TextStyle(
-//                   fontSize: fontSize,
-//                   fontFamily: 'Times New Roman',
-//                   fontWeight: FontWeight.w700,
-//                 ),
-//               ),
+//               style: _primaryButtonStyle(),
+//               child: Text('MODIFICAR', style: AppTextStyles.button(fontSize)),
 //             ),
 //           ),
 //         ),
@@ -719,9 +674,9 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     final args = ModalRoute.of(context)?.settings.arguments;
-//     final incident = _readIncidentFromArgs(args);
+//     final initialIncident = _readIncidentFromArgs(args);
 
-//     if (incident == null) {
+//     if (initialIncident == null) {
 //       return const Scaffold(
 //         backgroundColor: _backgroundColor,
 //         body: Center(
@@ -730,209 +685,212 @@
 //       );
 //     }
 
-//     if (!_statusInitialized) {
-//       _selectedStatus = incident.status.label;
-//       _statusInitialized = true;
-//     }
+//     return StreamBuilder<IncidentItem?>(
+//       stream: _incidentService.streamIncidentById(initialIncident.id),
+//       initialData: initialIncident,
+//       builder: (context, snapshot) {
+//         final incident = snapshot.data ?? initialIncident;
 
-//     final bool isAdmin = widget.enableAdminStatusEdit && _rolActual == 'admin';
-//     final bool canModifyOwnIncident =
-//         widget.showModifyButton && _isCurrentUserOwner(incident);
+//         if (snapshot.hasError) {
+//           debugPrint('ERROR ESCUCHANDO INCIDENTE: ${snapshot.error}');
+//         }
 
-//     final updateDate = _readUpdateDate(incident.rawData);
+//         if (snapshot.connectionState == ConnectionState.waiting &&
+//             snapshot.data == null) {
+//           return const Scaffold(
+//             backgroundColor: _backgroundColor,
+//             body: SafeArea(child: Center(child: CircularProgressIndicator())),
+//           );
+//         }
 
-//     final gpsRegistered = _readGpsRegistered(incident.rawData);
-//     final latitude = _readLatitude(incident.rawData);
-//     final longitude = _readLongitude(incident.rawData);
-//     final showGpsButton = gpsRegistered && latitude != null && longitude != null;
+//         _syncStatusWithIncident(incident);
 
-//     return GestureDetector(
-//       onTap: () {
-//         FocusScope.of(context).unfocus();
-//         setState(() {
-//           _isStatusExpanded = false;
-//         });
-//       },
-//       child: Scaffold(
-//         backgroundColor: _backgroundColor,
-//         body: SafeArea(
-//           child: LayoutBuilder(
-//             builder: (context, constraints) {
-//               final w = constraints.maxWidth;
-//               final h = constraints.maxHeight;
-//               final fontSize = w * 0.040;
-//               final double logoWidth = w * 0.78;
-//               final double imageHeight =
-//                   (w * 0.52).clamp(180.0, 240.0).toDouble();
+//         final bool isAdmin =
+//             widget.enableAdminStatusEdit && _rolActual == 'admin';
+//         final bool canModifyOwnIncident =
+//             widget.showModifyButton && _isCurrentUserOwner(incident);
 
-//               return SingleChildScrollView(
-//                 padding: EdgeInsets.symmetric(
-//                   horizontal: w * 0.04,
-//                   vertical: h * 0.02,
-//                 ),
-//                 child: Column(
-//                   children: [
-//                     Image.asset(
-//                       'assets/images/logo_incitech.png',
-//                       width: logoWidth,
-//                       fit: BoxFit.contain,
+//         final updateDate = _readUpdateDate(incident.rawData);
+
+//         final gpsRegistered = _readGpsRegistered(incident.rawData);
+//         final latitude = _readLatitude(incident.rawData);
+//         final longitude = _readLongitude(incident.rawData);
+//         final showGpsButton =
+//             gpsRegistered && latitude != null && longitude != null;
+
+//         return GestureDetector(
+//           onTap: () {
+//             FocusScope.of(context).unfocus();
+//             setState(() {
+//               _isStatusExpanded = false;
+//             });
+//           },
+//           child: Scaffold(
+//             backgroundColor: _backgroundColor,
+//             body: SafeArea(
+//               child: LayoutBuilder(
+//                 builder: (context, constraints) {
+//                   final w = constraints.maxWidth;
+//                   final h = constraints.maxHeight;
+//                   final fontSize = w * 0.040;
+//                   final double logoWidth = w * 0.78;
+//                   final double imageHeight = (w * 0.52)
+//                       .clamp(180.0, 240.0)
+//                       .toDouble();
+
+//                   return SingleChildScrollView(
+//                     padding: EdgeInsets.symmetric(
+//                       horizontal: w * 0.04,
+//                       vertical: h * 0.02,
 //                     ),
-//                     SizedBox(height: h * 0.025),
-//                     Container(
-//                       width: double.infinity,
-//                       padding: const EdgeInsets.all(16),
-//                       decoration: BoxDecoration(
-//                         color: _cardColor,
-//                         borderRadius: BorderRadius.circular(22),
-//                         boxShadow: const [
-//                           BoxShadow(
-//                             color: _shadowGreen,
-//                             offset: Offset(4, 5),
-//                             blurRadius: 4,
-//                           ),
-//                         ],
-//                       ),
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           Text(
-//                             incident.title,
-//                             style: TextStyle(
-//                               fontSize: fontSize * 1.15,
-//                               fontFamily: 'Times New Roman',
-//                               fontWeight: FontWeight.w800,
-//                               color: _textColor,
-//                             ),
-//                           ),
-//                           const SizedBox(height: 10),
-//                           IncidentImage(
-//                             imagePath: incident.imagePath,
-//                             width: double.infinity,
-//                             height: imageHeight,
-//                             fit: BoxFit.contain,
-//                           ),
-//                           SizedBox(height: h * 0.015),
-//                           _buildDescriptionBox(
-//                             description: incident.description,
-//                             fontSize: fontSize,
-//                           ),
-//                           const SizedBox(height: 12),
-//                           if (_hasValue(incident.date))
-//                             _buildDetailRow(
-//                               label: 'Fecha:',
-//                               value: incident.date,
-//                               fontSize: fontSize,
-//                             ),
-//                           if (_hasValue(updateDate))
-//                             _buildDetailRow(
-//                               label: 'Actualización de estado:',
-//                               value: updateDate!,
-//                               fontSize: fontSize,
-//                             ),
-//                           if (_hasValue(incident.type))
-//                             _buildDetailRow(
-//                               label: 'Tipo:',
-//                               value: incident.type,
-//                               fontSize: fontSize,
-//                             ),
-//                           if (_hasValue(incident.location))
-//                             _buildDetailRow(
-//                               label: 'Ubicación:',
-//                               value: incident.location,
-//                               fontSize: fontSize,
-//                             ),
-//                           _buildDetailRow(
-//                             label: 'Estado:',
-//                             value: _selectedStatus,
-//                             fontSize: fontSize,
-//                           ),
-//                           if (showGpsButton) ...[
-//                             const SizedBox(height: 10),
-//                             _buildGpsBox(
-//                               latitude: latitude,
-//                               longitude: longitude,
-//                               fontSize: fontSize,
-//                             ),
-//                           ],
-//                           const SizedBox(height: 10),
-//                           ..._buildExtraRows(
-//                             incident: incident,
-//                             fontSize: fontSize,
-//                           ),
-//                           if (_loadingRole) ...[
-//                             const SizedBox(height: 14),
-//                             const Center(
-//                               child: SizedBox(
-//                                 width: 24,
-//                                 height: 24,
-//                                 child: CircularProgressIndicator(
-//                                   strokeWidth: 2,
-//                                 ),
+//                     child: Column(
+//                       children: [
+//                         Image.asset(
+//                           'assets/images/logo_incitech.png',
+//                           width: logoWidth,
+//                           fit: BoxFit.contain,
+//                         ),
+//                         SizedBox(height: h * 0.025),
+//                         Container(
+//                           width: double.infinity,
+//                           padding: const EdgeInsets.all(16),
+//                           decoration: BoxDecoration(
+//                             color: _cardColor,
+//                             borderRadius: BorderRadius.circular(22),
+//                             boxShadow: const [
+//                               BoxShadow(
+//                                 color: _shadowGreen,
+//                                 offset: Offset(4, 5),
+//                                 blurRadius: 4,
 //                               ),
-//                             ),
-//                           ],
-//                           if (isAdmin) ...[
-//                             const SizedBox(height: 14),
-//                             Center(
-//                               child: Text(
-//                                 'Actualizar estado',
-//                                 style: TextStyle(
-//                                   fontSize: fontSize * 1.02,
-//                                   fontFamily: 'Times New Roman',
-//                                   fontWeight: FontWeight.w700,
+//                             ],
+//                           ),
+//                           child: Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Text(
+//                                 incident.title,
+//                                 style: AppTextStyles.extraBold(
+//                                   fontSize * 1.15,
 //                                   color: _textColor,
 //                                 ),
 //                               ),
-//                             ),
-//                             const SizedBox(height: 6),
-//                             _buildAdminStatusDropdown(fontSize),
-//                             const SizedBox(height: 12),
-//                             SizedBox(
-//                               width: double.infinity,
-//                               height: 42,
-//                               child: ElevatedButton(
-//                                 onPressed: _savingStatus
-//                                     ? null
-//                                     : () => _guardarEstado(incident),
-//                                 style: ElevatedButton.styleFrom(
-//                                   backgroundColor: _primaryGreen,
-//                                   foregroundColor: Colors.white,
-//                                   disabledBackgroundColor:
-//                                       _primaryGreen.withOpacity(0.55),
-//                                   disabledForegroundColor: Colors.white,
-//                                   shape: RoundedRectangleBorder(
-//                                     borderRadius: BorderRadius.circular(24),
-//                                   ),
-//                                 ),
-//                                 child: Text(
-//                                   _savingStatus
-//                                       ? 'GUARDANDO...'
-//                                       : 'GUARDAR ESTADO',
-//                                   style: TextStyle(
-//                                     fontSize: fontSize,
-//                                     fontFamily: 'Times New Roman',
-//                                     fontWeight: FontWeight.w700,
-//                                   ),
-//                                 ),
+//                               const SizedBox(height: 10),
+//                               IncidentImage(
+//                                 imagePath: incident.imagePath,
+//                                 width: double.infinity,
+//                                 height: imageHeight,
+//                                 fit: BoxFit.contain,
 //                               ),
-//                             ),
-//                           ],
-//                           SizedBox(height: h * 0.025),
-//                           _buildBottomButtons(
-//                             incident: incident,
-//                             fontSize: fontSize,
-//                             showModify: canModifyOwnIncident,
+//                               SizedBox(height: h * 0.015),
+//                               _buildDescriptionBox(
+//                                 description: incident.description,
+//                                 fontSize: fontSize,
+//                               ),
+//                               const SizedBox(height: 12),
+//                               if (_hasValue(incident.date))
+//                                 _buildDetailRow(
+//                                   label: 'Fecha:',
+//                                   value: incident.date,
+//                                   fontSize: fontSize,
+//                                 ),
+//                               if (_hasValue(updateDate))
+//                                 _buildDetailRow(
+//                                   label: 'Actualización de estado:',
+//                                   value: updateDate!,
+//                                   fontSize: fontSize,
+//                                 ),
+//                               if (_hasValue(incident.type))
+//                                 _buildDetailRow(
+//                                   label: 'Tipo:',
+//                                   value: incident.type,
+//                                   fontSize: fontSize,
+//                                 ),
+//                               if (_hasValue(incident.location))
+//                                 _buildDetailRow(
+//                                   label: 'Ubicación:',
+//                                   value: incident.location,
+//                                   fontSize: fontSize,
+//                                 ),
+//                               _buildDetailRow(
+//                                 label: 'Estado:',
+//                                 value: _selectedStatus,
+//                                 fontSize: fontSize,
+//                               ),
+//                               if (showGpsButton) ...[
+//                                 const SizedBox(height: 10),
+//                                 _buildGpsBox(
+//                                   latitude: latitude,
+//                                   longitude: longitude,
+//                                   fontSize: fontSize,
+//                                 ),
+//                               ],
+//                               const SizedBox(height: 10),
+//                               ..._buildExtraRows(
+//                                 incident: incident,
+//                                 fontSize: fontSize,
+//                               ),
+//                               if (_loadingRole) ...[
+//                                 const SizedBox(height: 14),
+//                                 const Center(
+//                                   child: SizedBox(
+//                                     width: 24,
+//                                     height: 24,
+//                                     child: CircularProgressIndicator(
+//                                       strokeWidth: 2,
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                               if (isAdmin) ...[
+//                                 const SizedBox(height: 14),
+//                                 Center(
+//                                   child: Text(
+//                                     'Actualizar estado',
+//                                     style: AppTextStyles.bold(
+//                                       fontSize * 1.02,
+//                                       color: _textColor,
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 const SizedBox(height: 6),
+//                                 _buildAdminStatusDropdown(fontSize),
+//                                 const SizedBox(height: 12),
+//                                 SizedBox(
+//                                   width: double.infinity,
+//                                   height: 42,
+//                                   child: ElevatedButton(
+//                                     onPressed: _savingStatus
+//                                         ? null
+//                                         : () => _guardarEstado(incident),
+//                                     style: _primaryButtonStyle(),
+//                                     child: Text(
+//                                       _savingStatus
+//                                           ? 'GUARDANDO...'
+//                                           : 'GUARDAR ESTADO',
+//                                       style: AppTextStyles.button(fontSize),
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                               SizedBox(height: h * 0.025),
+//                               _buildBottomButtons(
+//                                 incident: incident,
+//                                 fontSize: fontSize,
+//                                 showModify: canModifyOwnIncident,
+//                               ),
+//                             ],
 //                           ),
-//                         ],
-//                       ),
+//                         ),
+//                       ],
 //                     ),
-//                   ],
-//                 ),
-//               );
-//             },
+//                   );
+//                 },
+//               ),
+//             ),
 //           ),
-//         ),
-//       ),
+//         );
+//       },
 //     );
 //   }
 
@@ -953,29 +911,21 @@
 //             decoration: BoxDecoration(
 //               color: _statusColor(_selectedStatus),
 //               borderRadius: BorderRadius.circular(14),
-//               border: Border.all(
-//                 color: _borderColor,
-//                 width: 1,
-//               ),
+//               border: Border.all(color: _borderColor, width: 1),
 //             ),
 //             child: Row(
 //               children: [
 //                 Expanded(
 //                   child: Text(
 //                     _selectedStatus,
-//                     style: TextStyle(
-//                       fontSize: fontSize,
-//                       fontFamily: 'Times New Roman',
-//                       color: _textColor,
-//                       fontWeight: FontWeight.w600,
-//                     ),
+//                     style: AppTextStyles.semiBold(fontSize, color: _textColor),
 //                   ),
 //                 ),
 //                 Container(
 //                   width: 24,
 //                   height: 24,
 //                   decoration: BoxDecoration(
-//                     color: const Color(0xFFE6E6E6),
+//                     color: AppColors.lightGray,
 //                     borderRadius: BorderRadius.circular(12),
 //                     boxShadow: const [
 //                       BoxShadow(
@@ -1008,6 +958,7 @@
 //                   setState(() {
 //                     _selectedStatus = item;
 //                     _isStatusExpanded = false;
+//                     _hasPendingStatusChange = true;
 //                   });
 //                 },
 //                 child: Container(
@@ -1018,19 +969,11 @@
 //                   decoration: BoxDecoration(
 //                     color: _statusColor(item),
 //                     borderRadius: BorderRadius.circular(14),
-//                     border: Border.all(
-//                       color: _borderColor,
-//                       width: 1,
-//                     ),
+//                     border: Border.all(color: _borderColor, width: 1),
 //                   ),
 //                   child: Text(
 //                     item,
-//                     style: TextStyle(
-//                       fontSize: fontSize,
-//                       fontFamily: 'Times New Roman',
-//                       color: _textColor,
-//                       fontWeight: FontWeight.w600,
-//                     ),
+//                     style: AppTextStyles.semiBold(fontSize, color: _textColor),
 //                   ),
 //                 ),
 //               ),
@@ -1047,6 +990,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 import 'package:my_app_incitech_ua/features/incidents/models/incident_item.dart';
 import 'package:my_app_incitech_ua/features/incidents/widgets/incident_image.dart';
 import 'package:my_app_incitech_ua/services/auth_service.dart';
@@ -1058,11 +1003,13 @@ class IncidentDetailScreen extends StatefulWidget {
     super.key,
     this.enableAdminStatusEdit = true,
     this.showModifyButton = false,
+    this.showDeleteButton = false,
     this.modifyRouteName = '/modify-incident',
   });
 
   final bool enableAdminStatusEdit;
   final bool showModifyButton;
+  final bool showDeleteButton;
   final String modifyRouteName;
 
   @override
@@ -1070,12 +1017,12 @@ class IncidentDetailScreen extends StatefulWidget {
 }
 
 class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
-  static const Color _backgroundColor = Color(0xFFB8DEBE);
-  static const Color _cardColor = Color(0xFFF2F2F2);
-  static const Color _primaryGreen = Color(0xFF0C7A27);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _shadowGreen = Color(0x664FA96A);
-  static const Color _borderColor = Color(0xFF6A6A6A);
+  static const Color _backgroundColor = AppColors.backgroundGreen;
+  static const Color _cardColor = AppColors.softWhite;
+  static const Color _primaryGreen = AppColors.primaryGreen;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _shadowGreen = AppColors.shadowGreen;
+  static const Color _borderColor = AppColors.borderColor;
 
   final AuthService _authService = AuthService();
   final UserService _userService = UserService();
@@ -1086,6 +1033,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
   bool _savingStatus = false;
   bool _loadingRole = true;
   bool _hasPendingStatusChange = false;
+  bool _deletingIncident = false;
 
   String _selectedStatus = 'Reportado';
   String _rolActual = 'usuario';
@@ -1234,13 +1182,13 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
   Color _statusColor(String status) {
     switch (status) {
       case 'Reportado':
-        return const Color(0xFFF47E7E);
+        return AppColors.reported;
       case 'En Proceso':
-        return const Color(0xFFF2C45E);
+        return AppColors.inProgress;
       case 'Resuelto':
-        return const Color(0xFF7BE48E);
+        return AppColors.resolved;
       default:
-        return const Color(0xFFF4F4F4);
+        return AppColors.surfaceLight;
     }
   }
 
@@ -1254,6 +1202,26 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
       default:
         return 'reportado';
     }
+  }
+
+  ButtonStyle _primaryButtonStyle() {
+    return ElevatedButton.styleFrom(
+      backgroundColor: _primaryGreen,
+      foregroundColor: AppColors.white,
+      disabledBackgroundColor: _primaryGreen.withOpacity(0.55),
+      disabledForegroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+    );
+  }
+
+  ButtonStyle _deleteButtonStyle() {
+    return ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFFB00020),
+      foregroundColor: AppColors.white,
+      disabledBackgroundColor: const Color(0xFFB00020).withOpacity(0.55),
+      disabledForegroundColor: AppColors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+    );
   }
 
   bool _readBool(dynamic value) {
@@ -1479,6 +1447,78 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
     }
   }
 
+  Future<void> _eliminarIncidente(IncidentItem incident) async {
+    if (_deletingIncident) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(
+            'Eliminar incidente',
+            style: AppTextStyles.extraBold(18, color: _textColor),
+          ),
+          content: Text(
+            '¿Seguro que deseas eliminar este incidente?\n\nEsta acción eliminará el reporte y su imagen de Firebase.',
+            style: AppTextStyles.regular(15, color: _textColor),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text(
+                'Eliminar',
+                style: TextStyle(color: Color(0xFFB00020)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _deletingIncident = true;
+    });
+
+    try {
+      await _incidentService.deleteIncident(
+        incidentId: incident.id,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Incidente eliminado correctamente.'),
+        ),
+      );
+
+      Navigator.pop(context, true);
+    } catch (error) {
+      debugPrint('ERROR ELIMINANDO INCIDENTE: $error');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No se pudo eliminar el incidente: $error'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _deletingIncident = false;
+        });
+      }
+    }
+  }
+
   bool _isCurrentUserOwner(IncidentItem incident) {
     final currentUser = _authService.usuarioActual;
 
@@ -1515,21 +1555,11 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
           children: [
             TextSpan(
               text: '$label ',
-              style: TextStyle(
-                fontSize: fontSize,
-                fontFamily: 'Times New Roman',
-                fontWeight: FontWeight.w800,
-                color: _textColor,
-              ),
+              style: AppTextStyles.extraBold(fontSize, color: _textColor),
             ),
             TextSpan(
               text: value,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontFamily: 'Times New Roman',
-                fontWeight: FontWeight.w400,
-                color: _textColor,
-              ),
+              style: AppTextStyles.regular(fontSize, color: _textColor),
             ),
           ],
         ),
@@ -1550,30 +1580,23 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
       children: [
         Text(
           'Descripción:',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontFamily: 'Times New Roman',
-            fontWeight: FontWeight.w800,
-            color: _textColor,
-          ),
+          style: AppTextStyles.extraBold(fontSize, color: _textColor),
         ),
         const SizedBox(height: 4),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8F8F8),
+            color: AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _borderColor, width: 1),
           ),
           child: Text(
             description,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontFamily: 'Times New Roman',
+            style: AppTextStyles.regular(
+              fontSize,
               color: _textColor,
-              height: 1.08,
-            ),
+            ).copyWith(height: 1.08),
           ),
         ),
       ],
@@ -1590,19 +1613,14 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
       children: [
         Text(
           'Ubicación GPS:',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontFamily: 'Times New Roman',
-            fontWeight: FontWeight.w800,
-            color: _textColor,
-          ),
+          style: AppTextStyles.extraBold(fontSize, color: _textColor),
         ),
         const SizedBox(height: 6),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8F8F8),
+            color: AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: _borderColor, width: 1),
           ),
@@ -1613,11 +1631,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
               Text(
                 'La ubicación GPS fue registrada para este incidente.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontFamily: 'Times New Roman',
-                  color: _textColor,
-                ),
+                style: AppTextStyles.regular(fontSize, color: _textColor),
               ),
               const SizedBox(height: 10),
               SizedBox(
@@ -1630,19 +1644,9 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                   icon: const Icon(Icons.map_outlined),
                   label: Text(
                     'ABRIR EN GOOGLE MAPS',
-                    style: TextStyle(
-                      fontSize: fontSize * 0.90,
-                      fontFamily: 'Times New Roman',
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: AppTextStyles.button(fontSize * 0.90),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryGreen,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
+                  style: _primaryButtonStyle(),
                 ),
               ),
             ],
@@ -1656,81 +1660,72 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
     required IncidentItem incident,
     required double fontSize,
     required bool showModify,
+    required bool showDelete,
   }) {
-    if (!showModify) {
+    if (!showModify && !showDelete) {
       return SizedBox(
         width: double.infinity,
         height: 44,
         child: ElevatedButton(
           onPressed: () => Navigator.pop(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _primaryGreen,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-          ),
-          child: Text(
-            'VOLVER',
-            style: TextStyle(
-              fontSize: fontSize,
-              fontFamily: 'Times New Roman',
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          style: _primaryButtonStyle(),
+          child: Text('VOLVER', style: AppTextStyles.button(fontSize)),
         ),
       );
     }
 
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: SizedBox(
-            height: 44,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryGreen,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-              child: Text(
-                'VOLVER',
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontFamily: 'Times New Roman',
-                  fontWeight: FontWeight.w700,
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 44,
+                child: ElevatedButton(
+                  onPressed:
+                      _deletingIncident ? null : () => Navigator.pop(context),
+                  style: _primaryButtonStyle(),
+                  child: Text('VOLVER', style: AppTextStyles.button(fontSize)),
                 ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: SizedBox(
-            height: 44,
-            child: ElevatedButton(
-              onPressed: () => _abrirModificarIncidente(incident),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryGreen,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+            if (showModify) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: ElevatedButton(
+                    onPressed: _deletingIncident
+                        ? null
+                        : () => _abrirModificarIncidente(incident),
+                    style: _primaryButtonStyle(),
+                    child: Text(
+                      'MODIFICAR',
+                      style: AppTextStyles.button(fontSize),
+                    ),
+                  ),
                 ),
               ),
+            ],
+          ],
+        ),
+        if (showDelete) ...[
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton(
+              onPressed: _deletingIncident
+                  ? null
+                  : () => _eliminarIncidente(incident),
+              style: _deleteButtonStyle(),
               child: Text(
-                'MODIFICAR',
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontFamily: 'Times New Roman',
-                  fontWeight: FontWeight.w700,
-                ),
+                _deletingIncident ? 'ELIMINANDO...' : 'ELIMINAR',
+                style: AppTextStyles.button(fontSize),
               ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -1814,8 +1809,12 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
 
         final bool isAdmin =
             widget.enableAdminStatusEdit && _rolActual == 'admin';
+
         final bool canModifyOwnIncident =
             widget.showModifyButton && _isCurrentUserOwner(incident);
+
+        final bool canDeleteOwnIncident =
+            widget.showDeleteButton && _isCurrentUserOwner(incident);
 
         final updateDate = _readUpdateDate(incident.rawData);
 
@@ -1841,9 +1840,8 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                   final h = constraints.maxHeight;
                   final fontSize = w * 0.040;
                   final double logoWidth = w * 0.78;
-                  final double imageHeight = (w * 0.52)
-                      .clamp(180.0, 240.0)
-                      .toDouble();
+                  final double imageHeight =
+                      (w * 0.52).clamp(180.0, 240.0).toDouble();
 
                   return SingleChildScrollView(
                     padding: EdgeInsets.symmetric(
@@ -1877,10 +1875,8 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                             children: [
                               Text(
                                 incident.title,
-                                style: TextStyle(
-                                  fontSize: fontSize * 1.15,
-                                  fontFamily: 'Times New Roman',
-                                  fontWeight: FontWeight.w800,
+                                style: AppTextStyles.extraBold(
+                                  fontSize * 1.15,
                                   color: _textColor,
                                 ),
                               ),
@@ -1956,10 +1952,8 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                                 Center(
                                   child: Text(
                                     'Actualizar estado',
-                                    style: TextStyle(
-                                      fontSize: fontSize * 1.02,
-                                      fontFamily: 'Times New Roman',
-                                      fontWeight: FontWeight.w700,
+                                    style: AppTextStyles.bold(
+                                      fontSize * 1.02,
                                       color: _textColor,
                                     ),
                                   ),
@@ -1974,25 +1968,12 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                                     onPressed: _savingStatus
                                         ? null
                                         : () => _guardarEstado(incident),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: _primaryGreen,
-                                      foregroundColor: Colors.white,
-                                      disabledBackgroundColor: _primaryGreen
-                                          .withOpacity(0.55),
-                                      disabledForegroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(24),
-                                      ),
-                                    ),
+                                    style: _primaryButtonStyle(),
                                     child: Text(
                                       _savingStatus
                                           ? 'GUARDANDO...'
                                           : 'GUARDAR ESTADO',
-                                      style: TextStyle(
-                                        fontSize: fontSize,
-                                        fontFamily: 'Times New Roman',
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                      style: AppTextStyles.button(fontSize),
                                     ),
                                   ),
                                 ),
@@ -2002,6 +1983,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                                 incident: incident,
                                 fontSize: fontSize,
                                 showModify: canModifyOwnIncident,
+                                showDelete: canDeleteOwnIncident,
                               ),
                             ],
                           ),
@@ -2042,19 +2024,14 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                 Expanded(
                   child: Text(
                     _selectedStatus,
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontFamily: 'Times New Roman',
-                      color: _textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.semiBold(fontSize, color: _textColor),
                   ),
                 ),
                 Container(
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE6E6E6),
+                    color: AppColors.lightGray,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: const [
                       BoxShadow(
@@ -2102,12 +2079,7 @@ class _IncidentDetailScreenState extends State<IncidentDetailScreen> {
                   ),
                   child: Text(
                     item,
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontFamily: 'Times New Roman',
-                      color: _textColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.semiBold(fontSize, color: _textColor),
                   ),
                 ),
               ),

@@ -1,4 +1,6 @@
 // import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 // class RegisterScreen extends StatefulWidget {
 //   const RegisterScreen({super.key});
@@ -8,12 +10,12 @@
 // }
 
 // class _RegisterScreenState extends State<RegisterScreen> {
-//   static const Color _backgroundColor = Color(0xFFB8DEBE);
-//   static const Color _cardColor = Color(0xFFF2F2F2);
-//   static const Color _primaryGreen = Color(0xFF0C7A27);
-//   static const Color _shadowGreen = Color(0xFF4FA96A);
-//   static const Color _textColor = Color(0xFF222222);
-//   static const Color _inputBorderColor = Color(0xFF3D3D3D);
+//   static const Color _backgroundColor = AppColors.backgroundGreen;
+//   static const Color _cardColor = AppColors.softWhite;
+//   static const Color _primaryGreen = AppColors.primaryGreenAlt;
+//   static const Color _shadowGreen = AppColors.shadowGreen;
+//   static const Color _textColor = AppColors.textDark;
+//   static const Color _inputBorderColor = AppColors.borderDark;
 
 //   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -204,7 +206,7 @@
 //                                 style: TextStyle(
 //                                   fontSize: unifiedFontSize,
 //                                   fontWeight: FontWeight.w500,
-//                                   fontFamily: 'Times New Roman',
+//                                   fontFamily: AppTextStyles.fontFamily,
 //                                   color: _textColor,
 //                                 ),
 //                               ),
@@ -324,7 +326,7 @@
 //                                         style: TextStyle(
 //                                           fontSize: unifiedFontSize,
 //                                           fontWeight: FontWeight.w500,
-//                                           fontFamily: 'Times New Roman',
+//                                           fontFamily: AppTextStyles.fontFamily,
 //                                         ),
 //                                       ),
 //                                     ),
@@ -361,7 +363,7 @@
 //                                               style: TextStyle(
 //                                                 fontSize: unifiedFontSize,
 //                                                 fontWeight: FontWeight.w500,
-//                                                 fontFamily: 'Times New Roman',
+//                                                 fontFamily: AppTextStyles.fontFamily,
 //                                               ),
 //                                             ),
 //                                     ),
@@ -385,7 +387,7 @@
 //                             height: 1.05,
 //                             fontWeight: FontWeight.w600,
 //                             color: _textColor,
-//                             fontFamily: 'Times New Roman',
+//                             fontFamily: AppTextStyles.fontFamily,
 //                           ),
 //                         ),
 //                       ),
@@ -413,7 +415,7 @@
 //             child: Icon(
 //               Icons.account_circle_outlined,
 //               size: w * 0.19,
-//               color: const Color(0xFF3D3D3D),
+//               color: AppColors.borderDark,
 //             ),
 //           ),
 //           Positioned(
@@ -427,7 +429,7 @@
 //               child: Icon(
 //                 Icons.add_circle_outline,
 //                 size: w * 0.075,
-//                 color: const Color(0xFF3D3D3D),
+//                 color: AppColors.borderDark,
 //               ),
 //             ),
 //           ),
@@ -446,7 +448,7 @@
 //           style: TextStyle(
 //             fontSize: fontSize,
 //             color: _textColor,
-//             fontFamily: 'Times New Roman',
+//             fontFamily: AppTextStyles.fontFamily,
 //             fontWeight: FontWeight.w500,
 //           ),
 //         ),
@@ -473,7 +475,7 @@
 //         validator: validator,
 //         style: TextStyle(
 //           fontSize: fontSize,
-//           fontFamily: 'Times New Roman',
+//           fontFamily: AppTextStyles.fontFamily,
 //           color: _textColor,
 //         ),
 //         decoration: InputDecoration(
@@ -481,7 +483,7 @@
 //           hintStyle: TextStyle(
 //             fontSize: fontSize,
 //             color: Colors.grey.shade500,
-//             fontFamily: 'Times New Roman',
+//             fontFamily: AppTextStyles.fontFamily,
 //           ),
 //           filled: true,
 //           fillColor: _cardColor,
@@ -545,12 +547,12 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  static const Color _backgroundColor = Color(0xFFB8DEBE);
-  static const Color _cardColor = Color(0xFFF2F2F2);
-  static const Color _primaryGreen = Color(0xFF0C7A27);
-  static const Color _shadowGreen = Color(0xFF4FA96A);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _inputBorderColor = Color(0xFF3D3D3D);
+  static const Color _backgroundColor = AppColors.backgroundGreen;
+  static const Color _cardColor = AppColors.softWhite;
+  static const Color _primaryGreen = AppColors.primaryGreenAlt;
+  static const Color _shadowGreen = AppColors.shadowGreen;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _inputBorderColor = AppColors.borderDark;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -763,7 +765,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 style: TextStyle(
                                   fontSize: unifiedFontSize,
                                   fontWeight: FontWeight.w500,
-                                  fontFamily: 'Times New Roman',
+                                  fontFamily: AppTextStyles.fontFamily,
                                   color: _textColor,
                                 ),
                               ),
@@ -873,7 +875,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         style: TextStyle(
                                           fontSize: unifiedFontSize,
                                           fontWeight: FontWeight.w500,
-                                          fontFamily: 'Times New Roman',
+                                          fontFamily: AppTextStyles.fontFamily,
                                         ),
                                       ),
                                     ),
@@ -910,7 +912,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               style: TextStyle(
                                                 fontSize: unifiedFontSize,
                                                 fontWeight: FontWeight.w500,
-                                                fontFamily: 'Times New Roman',
+                                                fontFamily: AppTextStyles.fontFamily,
                                               ),
                                             ),
                                     ),
@@ -932,7 +934,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             height: 1.05,
                             fontWeight: FontWeight.w600,
                             color: _textColor,
-                            fontFamily: 'Times New Roman',
+                            fontFamily: AppTextStyles.fontFamily,
                           ),
                         ),
                       ),
@@ -959,7 +961,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Icon(
               Icons.account_circle_outlined,
               size: w * 0.19,
-              color: const Color(0xFF3D3D3D),
+              color: AppColors.borderDark,
             ),
           ),
           Positioned(
@@ -973,7 +975,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Icon(
                 Icons.add_circle_outline,
                 size: w * 0.075,
-                color: const Color(0xFF3D3D3D),
+                color: AppColors.borderDark,
               ),
             ),
           ),
@@ -992,7 +994,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           style: TextStyle(
             fontSize: fontSize,
             color: _textColor,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -1019,7 +1021,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         validator: validator,
         style: TextStyle(
           fontSize: fontSize,
-          fontFamily: 'Times New Roman',
+          fontFamily: AppTextStyles.fontFamily,
           color: _textColor,
         ),
         decoration: InputDecoration(
@@ -1027,7 +1029,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           hintStyle: TextStyle(
             fontSize: fontSize,
             color: Colors.grey.shade500,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
           ),
           filled: true,
           fillColor: _cardColor,
@@ -1073,3 +1075,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
+

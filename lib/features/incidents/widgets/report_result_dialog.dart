@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 class ReportResultDialog extends StatelessWidget {
   const ReportResultDialog({
@@ -16,8 +18,8 @@ class ReportResultDialog extends StatelessWidget {
   final String buttonText;
   final VoidCallback? onButtonPressed;
 
-  static const Color _green = Color(0xFF0C7A27);
-  static const Color _textColor = Color(0xFF222222);
+  static const Color _green = AppColors.primaryGreenAlt;
+  static const Color _textColor = AppColors.textDark;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class ReportResultDialog extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
         decoration: BoxDecoration(
-          color: const Color(0xFFF7F7F7),
+          color: AppColors.panelLightAlt,
           borderRadius: BorderRadius.circular(22),
         ),
         child: Stack(
@@ -77,7 +79,7 @@ class ReportResultDialog extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: titleSize,
-                      fontFamily: 'Times New Roman',
+                      fontFamily: AppTextStyles.fontFamily,
                       fontWeight: FontWeight.w700,
                       color: isSuccess
                           ? const Color(0xFF10301B)
@@ -91,7 +93,7 @@ class ReportResultDialog extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: textSize,
-                      fontFamily: 'Times New Roman',
+                      fontFamily: AppTextStyles.fontFamily,
                       color: _textColor,
                       height: 1.15,
                     ),
@@ -117,7 +119,7 @@ class ReportResultDialog extends StatelessWidget {
                         buttonText,
                         style: TextStyle(
                           fontSize: textSize * 1.05,
-                          fontFamily: 'Times New Roman',
+                          fontFamily: AppTextStyles.fontFamily,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -132,3 +134,5 @@ class ReportResultDialog extends StatelessWidget {
     );
   }
 }
+
+

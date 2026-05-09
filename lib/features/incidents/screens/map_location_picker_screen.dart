@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:my_app_incitech_ua/features/incidents/models/selected_map_location.dart';
@@ -42,15 +44,15 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
     final fontSize = w * 0.040;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFB8DEBE),
+      backgroundColor: AppColors.backgroundGreen,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFB8DEBE),
+        backgroundColor: AppColors.backgroundGreen,
         elevation: 0,
         title: const Text(
           'Seleccionar ubicación',
           style: TextStyle(
             color: Colors.black,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
@@ -93,7 +95,7 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            color: const Color(0xFFF2F2F2),
+            color: AppColors.softWhite,
             child: Column(
               children: [
                 Text(
@@ -101,8 +103,8 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fontSize,
-                    fontFamily: 'Times New Roman',
-                    color: const Color(0xFF222222),
+                    fontFamily: AppTextStyles.fontFamily,
+                    color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -111,8 +113,8 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fontSize * 0.95,
-                    fontFamily: 'Times New Roman',
-                    color: const Color(0xFF222222),
+                    fontFamily: AppTextStyles.fontFamily,
+                    color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -122,7 +124,7 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                   child: ElevatedButton(
                     onPressed: _confirmLocation,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0C7A27),
+                      backgroundColor: AppColors.primaryGreenAlt,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -133,7 +135,7 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                       'Confirmar ubicación',
                       style: TextStyle(
                         fontSize: fontSize,
-                        fontFamily: 'Times New Roman',
+                        fontFamily: AppTextStyles.fontFamily,
                       ),
                     ),
                   ),
@@ -146,3 +148,5 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
     );
   }
 }
+
+

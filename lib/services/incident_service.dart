@@ -1,5 +1,6 @@
 
 
+
 // import 'dart:async';
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,6 +30,16 @@
 //         .snapshots()
 //         .map((snapshot) {
 //       return snapshot.docs.map(IncidentItem.fromFirestore).toList();
+//     });
+//   }
+
+//   Stream<IncidentItem?> streamIncidentById(String incidentId) {
+//     return _collection.doc(incidentId).snapshots().map((doc) {
+//       if (!doc.exists || doc.data() == null) {
+//         return null;
+//       }
+
+//       return IncidentItem.fromFirestore(doc);
 //     });
 //   }
 
@@ -915,6 +926,29 @@ class IncidentService {
           newPath: newStoragePath,
         );
       }
+    }
+  }
+
+  Future<void> deleteIncident({
+    required String incidentId,
+  }) async {
+    final docRef = _collection.doc(incidentId);
+    final docSnapshot = await docRef.get();
+
+    if (!docSnapshot.exists) {
+      throw Exception('El incidente no existe o ya fue eliminado.');
+    }
+
+    final currentData = docSnapshot.data() ?? {};
+    final imageStoragePath = _readCurrentImageStoragePath(currentData);
+
+    await docRef.delete();
+
+    if (imageStoragePath != null && imageStoragePath.trim().isNotEmpty) {
+      await _deletePreviousIncidentImage(
+        oldPath: imageStoragePath,
+        newPath: null,
+      );
     }
   }
 

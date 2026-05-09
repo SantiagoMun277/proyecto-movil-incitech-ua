@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app/app.dart';
-import 'package:firebase_core/firebase_core.dart'; // Importante
+import 'package:firebase_core/firebase_core.dart'; 
 import 'firebase_options.dart'; // El archivo que acabas de generar
 
 void main() async {

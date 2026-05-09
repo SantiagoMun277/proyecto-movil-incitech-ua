@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 import 'package:my_app_incitech_ua/features/incidents/models/incident_item.dart';
 import 'package:my_app_incitech_ua/features/statistics/screens/statistics_expandable_dropdown.dart';
 import 'package:my_app_incitech_ua/services/incident_service.dart';
@@ -16,12 +18,12 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-  static const Color _backgroundColor = Color(0xFFB8DEBE);
-  static const Color _cardColor = Color(0xFFF2F2F2);
-  static const Color _primaryGreen = Color(0xFF0C7A27);
-  static const Color _shadowGreen = Color(0x664FA96A);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _borderColor = Color(0xFF4E4E4E);
+  static const Color _backgroundColor = AppColors.backgroundGreen;
+  static const Color _cardColor = AppColors.softWhite;
+  static const Color _primaryGreen = AppColors.primaryGreenAlt;
+  static const Color _shadowGreen = AppColors.shadowGreen;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _borderColor = AppColors.borderStrong;
 
   final IncidentService _incidentService = IncidentService();
 
@@ -81,7 +83,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Color _statusColor(String status) {
     switch (status) {
       case 'Reportado':
-        return const Color(0xFFF47E7E);
+        return AppColors.chipRed;
       case 'En Proceso':
         return const Color(0xFFF2C45E);
       case 'Resuelto':
@@ -97,7 +99,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       const Color(0xFF108E34),
       const Color(0xFF179D3F),
       const Color(0xFF1E7B35),
-      const Color(0xFF4FA96A),
+      AppColors.shadowGreen,
       const Color(0xFF66BB6A),
       const Color(0xFF81C784),
     ];
@@ -292,7 +294,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: baseFontSize,
-                        fontFamily: 'Times New Roman',
+                        fontFamily: AppTextStyles.fontFamily,
                         color: _textColor,
                       ),
                     ),
@@ -318,7 +320,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: TextStyle(
                             fontSize: baseFontSize * 0.88,
                             color: Colors.black54,
-                            fontFamily: 'Arial',
+                            fontFamily: AppTextStyles.accentFontFamily,
                           ),
                         ),
                       ),
@@ -435,7 +437,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             'Gráficas:',
             style: TextStyle(
               fontSize: fontSize,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               color: _textColor,
             ),
           ),
@@ -487,7 +489,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: fontSize * 1.02,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               color: _textColor,
             ),
           ),
@@ -509,7 +511,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               style: TextStyle(
                 fontSize: fontSize * 1.60,
                 fontWeight: FontWeight.w700,
-                fontFamily: 'Times New Roman',
+                fontFamily: AppTextStyles.fontFamily,
                 color: _primaryGreen,
               ),
             ),
@@ -564,7 +566,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             'Distribución por estado',
             style: TextStyle(
               fontSize: fontSize * 1.02,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               fontWeight: FontWeight.w700,
               color: _textColor,
             ),
@@ -629,7 +631,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       '$total',
                       style: TextStyle(
                         fontSize: fontSize * 1.35,
-                        fontFamily: 'Times New Roman',
+                        fontFamily: AppTextStyles.fontFamily,
                         fontWeight: FontWeight.w800,
                         color: _primaryGreen,
                       ),
@@ -661,7 +663,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: fontSize * 0.78,
-                            fontFamily: 'Times New Roman',
+                            fontFamily: AppTextStyles.fontFamily,
                             fontWeight: FontWeight.w700,
                             height: 1.15,
                           ),
@@ -696,7 +698,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             title,
             style: TextStyle(
               fontSize: fontSize * 1.02,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               fontWeight: FontWeight.w700,
               color: _textColor,
             ),
@@ -732,7 +734,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           TextStyle(
                             color: Colors.white,
                             fontSize: fontSize * 0.78,
-                            fontFamily: 'Times New Roman',
+                            fontFamily: AppTextStyles.fontFamily,
                             fontWeight: FontWeight.w700,
                           ),
                         );
@@ -780,7 +782,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             value.toInt().toString(),
                             style: TextStyle(
                               fontSize: fontSize * 0.72,
-                              fontFamily: 'Times New Roman',
+                              fontFamily: AppTextStyles.fontFamily,
                               color: Colors.black54,
                             ),
                           );
@@ -807,7 +809,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: fontSize * 0.64,
-                                fontFamily: 'Times New Roman',
+                                fontFamily: AppTextStyles.fontFamily,
                                 color: _textColor,
                               ),
                             ),
@@ -853,7 +855,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           style: TextStyle(
             fontSize: fontSize * 0.92,
             color: Colors.black45,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
           ),
         ),
       ),
@@ -876,7 +878,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             title,
             style: TextStyle(
               fontSize: fontSize * 1.02,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               fontWeight: FontWeight.w700,
               color: _textColor,
             ),
@@ -892,7 +894,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       '${entry.key}:',
                       style: TextStyle(
                         fontSize: fontSize * 0.96,
-                        fontFamily: 'Times New Roman',
+                        fontFamily: AppTextStyles.fontFamily,
                         color: _textColor,
                       ),
                     ),
@@ -901,7 +903,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     '${entry.value}',
                     style: TextStyle(
                       fontSize: fontSize * 0.96,
-                      fontFamily: 'Times New Roman',
+                      fontFamily: AppTextStyles.fontFamily,
                       fontWeight: FontWeight.w700,
                       color: entry.value > 0 ? _textColor : Colors.black45,
                     ),
@@ -938,9 +940,9 @@ class _StatusBubbleCard extends StatelessWidget {
     required this.fontSize,
   });
 
-  static const Color _cardColor = Color(0xFFF2F2F2);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _borderColor = Color(0xFF4E4E4E);
+  static const Color _cardColor = AppColors.softWhite;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _borderColor = AppColors.borderStrong;
 
   final int count;
   final String label;
@@ -978,7 +980,7 @@ class _StatusBubbleCard extends StatelessWidget {
               '$count',
               style: TextStyle(
                 fontSize: fontSize * 0.92,
-                fontFamily: 'Times New Roman',
+                fontFamily: AppTextStyles.fontFamily,
                 color: Colors.black,
               ),
             ),
@@ -992,7 +994,7 @@ class _StatusBubbleCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: fontSize * 0.72,
-                fontFamily: 'Times New Roman',
+                fontFamily: AppTextStyles.fontFamily,
                 color: _textColor,
               ),
             ),
@@ -1002,3 +1004,6 @@ class _StatusBubbleCard extends StatelessWidget {
     );
   }
 }
+
+
+

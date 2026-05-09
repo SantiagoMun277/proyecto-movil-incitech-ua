@@ -2,6 +2,8 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:my_app_incitech_ua/features/incidents/models/selected_map_location.dart';
@@ -25,13 +27,13 @@ class CreateIncidentScreen extends StatefulWidget {
 }
 
 class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
-  static const Color _backgroundColor = Color(0xFFB8DEBE);
-  static const Color _cardColor = Color(0xFFF2F2F2);
-  static const Color _inputColor = Color(0xFFB8DEBE);
-  static const Color _primaryGreen = Color(0xFF0C7A27);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _shadowGreen = Color(0x664FA96A);
-  static const Color _borderColor = Color(0xFF4E4E4E);
+  static const Color _backgroundColor = AppColors.backgroundGreen;
+  static const Color _cardColor = AppColors.softWhite;
+  static const Color _inputColor = AppColors.backgroundGreen;
+  static const Color _primaryGreen = AppColors.primaryGreenAlt;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _shadowGreen = AppColors.shadowGreen;
+  static const Color _borderColor = AppColors.borderStrong;
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _locationTextController = TextEditingController();
@@ -492,7 +494,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                     child: ElevatedButton(
                                       onPressed: _openPhotoSheet,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFFA8B9AA),
+                                        backgroundColor: AppColors.textMuted,
                                         foregroundColor: Colors.black54,
                                         elevation: 0,
                                         shape: RoundedRectangleBorder(
@@ -510,7 +512,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                             : 'Cambiar foto',
                                         style: TextStyle(
                                           fontSize: fontSize,
-                                          fontFamily: 'Times New Roman',
+                                          fontFamily: AppTextStyles.fontFamily,
                                         ),
                                       ),
                                     ),
@@ -554,7 +556,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                     'VOLVER',
                                     style: TextStyle(
                                       fontSize: fontSize * 0.92,
-                                      fontFamily: 'Times New Roman',
+                                      fontFamily: AppTextStyles.fontFamily,
                                     ),
                                   ),
                                 ),
@@ -576,7 +578,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                     _isSaving ? 'GUARDANDO...' : 'GUARDAR',
                                     style: TextStyle(
                                       fontSize: fontSize * 0.92,
-                                      fontFamily: 'Times New Roman',
+                                      fontFamily: AppTextStyles.fontFamily,
                                     ),
                                   ),
                                 ),
@@ -595,7 +597,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                                 height: 1.0,
                                 fontWeight: FontWeight.w600,
                                 color: _textColor,
-                                fontFamily: 'Times New Roman',
+                                fontFamily: AppTextStyles.fontFamily,
                               ),
                             ),
                           ),
@@ -619,7 +621,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
         text,
         style: TextStyle(
           fontSize: fontSize * 1.02,
-          fontFamily: 'Times New Roman',
+          fontFamily: AppTextStyles.fontFamily,
           color: _textColor,
         ),
       ),
@@ -634,7 +636,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
             text: '$label ',
             style: TextStyle(
               fontSize: fontSize * 1.02,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               fontWeight: FontWeight.w700,
               color: _textColor,
             ),
@@ -643,7 +645,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
             text: value,
             style: TextStyle(
               fontSize: fontSize * 1.02,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               color: _textColor,
             ),
           ),
@@ -669,7 +671,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
         minLines: minLines,
         style: TextStyle(
           fontSize: fontSize,
-          fontFamily: 'Times New Roman',
+          fontFamily: AppTextStyles.fontFamily,
           color: _textColor,
         ),
         decoration: InputDecoration(
@@ -726,7 +728,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
                 text,
                 style: TextStyle(
                   fontSize: fontSize,
-                  fontFamily: 'Times New Roman',
+                  fontFamily: AppTextStyles.fontFamily,
                   color: text == 'Seleccionar un tipo'
                       ? Colors.grey.shade700
                       : _textColor,
@@ -746,3 +748,7 @@ class _CreateIncidentScreenState extends State<CreateIncidentScreen> {
     );
   }
 }
+
+
+
+

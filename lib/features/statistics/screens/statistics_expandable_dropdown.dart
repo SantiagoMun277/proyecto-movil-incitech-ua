@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 class StatisticsExpandableDropdown extends StatelessWidget {
   const StatisticsExpandableDropdown({
@@ -18,9 +20,9 @@ class StatisticsExpandableDropdown extends StatelessWidget {
   final ValueChanged<String> onSelected;
   final double fontSize;
 
-  static const Color _fieldColor = Color(0xFFF4F4F4);
-  static const Color _borderColor = Color(0xFF6A6A6A);
-  static const Color _textColor = Color(0xFF2A2A2A);
+  static const Color _fieldColor = AppColors.cardBackground;
+  static const Color _borderColor = AppColors.borderColor;
+  static const Color _textColor = AppColors.textNeutral;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class StatisticsExpandableDropdown extends StatelessWidget {
                     value,
                     style: TextStyle(
                       fontSize: fontSize,
-                      fontFamily: 'Times New Roman',
+                      fontFamily: AppTextStyles.fontFamily,
                       color: _textColor,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -55,7 +57,7 @@ class StatisticsExpandableDropdown extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE6E6E6),
+                    color: AppColors.lightGray,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: const [
                       BoxShadow(
@@ -81,7 +83,7 @@ class StatisticsExpandableDropdown extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFE8E8E8),
+              color: AppColors.panelNeutral,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: _borderColor, width: 1),
             ),
@@ -110,7 +112,7 @@ class StatisticsExpandableDropdown extends StatelessWidget {
                       item,
                       style: TextStyle(
                         fontSize: fontSize,
-                        fontFamily: 'Times New Roman',
+                        fontFamily: AppTextStyles.fontFamily,
                         color: _textColor,
                       ),
                     ),
@@ -124,3 +126,4 @@ class StatisticsExpandableDropdown extends StatelessWidget {
     );
   }
 }
+

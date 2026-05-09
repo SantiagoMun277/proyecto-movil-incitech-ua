@@ -1,5 +1,7 @@
 
 // import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 // class LoginScreen extends StatefulWidget {
 //   const LoginScreen({super.key});
@@ -9,13 +11,13 @@
 // }
 
 // class _LoginScreenState extends State<LoginScreen> {
-//   static const Color _backgroundColor = Color(0xFFB8DEBE);
-//   static const Color _cardColor = Color(0xFFF2F2F2);
-//   static const Color _primaryGreen = Color(0xFF0C7A27);
-//   static const Color _shadowGreen = Color(0xFF4FA96A);
-//   static const Color _textColor = Color(0xFF222222);
-//   static const Color _inputBorderColor = Color(0xFF3D3D3D);
-//   static const Color _linkColor = Color(0xFF2F8E5B);
+//   static const Color _backgroundColor = AppColors.backgroundGreen;
+//   static const Color _cardColor = AppColors.softWhite;
+//   static const Color _primaryGreen = AppColors.primaryGreenAlt;
+//   static const Color _shadowGreen = AppColors.shadowGreen;
+//   static const Color _textColor = AppColors.textDark;
+//   static const Color _inputBorderColor = AppColors.borderDark;
+//   static const Color _linkColor = AppColors.linkGreen;
 
 //   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 //   final TextEditingController _emailController = TextEditingController();
@@ -137,7 +139,7 @@
 //                               Icon(
 //                                 Icons.account_circle_outlined,
 //                                 size: w * 0.19,
-//                                 color: const Color(0xFF3D3D3D),
+//                                 color: AppColors.borderDark,
 //                               ),
 //                               SizedBox(height: h * 0.008),
 //                               Text(
@@ -145,7 +147,7 @@
 //                                 style: TextStyle(
 //                                   fontSize: unifiedFontSize,
 //                                   fontWeight: FontWeight.w500,
-//                                   fontFamily: 'Times New Roman',
+//                                   fontFamily: AppTextStyles.fontFamily,
 //                                   color: _textColor,
 //                                 ),
 //                               ),
@@ -212,7 +214,7 @@
 //                                           style: TextStyle(
 //                                             fontSize: unifiedFontSize,
 //                                             fontWeight: FontWeight.w500,
-//                                             fontFamily: 'Times New Roman',
+//                                             fontFamily: AppTextStyles.fontFamily,
 //                                           ),
 //                                         ),
 //                                 ),
@@ -227,7 +229,7 @@
 //                                     style: TextStyle(
 //                                       fontSize: unifiedFontSize,
 //                                       color: _textColor,
-//                                       fontFamily: 'Times New Roman',
+//                                       fontFamily: AppTextStyles.fontFamily,
 //                                     ),
 //                                   ),
 //                                   InkWell(
@@ -238,7 +240,7 @@
 //                                         fontSize: unifiedFontSize,
 //                                         color: _linkColor,
 //                                         decoration: TextDecoration.underline,
-//                                         fontFamily: 'Times New Roman',
+//                                         fontFamily: AppTextStyles.fontFamily,
 //                                       ),
 //                                     ),
 //                                   ),
@@ -259,7 +261,7 @@
 //                             height: 1.05,
 //                             fontWeight: FontWeight.w600,
 //                             color: _textColor,
-//                             fontFamily: 'Times New Roman',
+//                             fontFamily: AppTextStyles.fontFamily,
 //                           ),
 //                         ),
 //                       ),
@@ -285,7 +287,7 @@
 //           style: TextStyle(
 //             fontSize: fontSize,
 //             color: _textColor,
-//             fontFamily: 'Times New Roman',
+//             fontFamily: AppTextStyles.fontFamily,
 //             fontWeight: FontWeight.w500,
 //           ),
 //         ),
@@ -312,7 +314,7 @@
 //         validator: validator,
 //         style: TextStyle(
 //           fontSize: fontSize,
-//           fontFamily: 'Times New Roman',
+//           fontFamily: AppTextStyles.fontFamily,
 //           color: _textColor,
 //         ),
 //         decoration: InputDecoration(
@@ -320,7 +322,7 @@
 //           hintStyle: TextStyle(
 //             fontSize: fontSize,
 //             color: Colors.grey.shade500,
-//             fontFamily: 'Times New Roman',
+//             fontFamily: AppTextStyles.fontFamily,
 //           ),
 //           filled: true,
 //           fillColor: _cardColor,
@@ -362,13 +364,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  static const Color _backgroundColor = Color(0xFFB8DEBE);
-  static const Color _cardColor = Color(0xFFF2F2F2);
-  static const Color _primaryGreen = Color(0xFF0C7A27);
-  static const Color _shadowGreen = Color(0xFF4FA96A);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _inputBorderColor = Color(0xFF3D3D3D);
-  static const Color _linkColor = Color(0xFF2F8E5B);
+  static const Color _backgroundColor = AppColors.backgroundGreen;
+  static const Color _cardColor = AppColors.softWhite;
+  static const Color _primaryGreen = AppColors.primaryGreenAlt;
+  static const Color _shadowGreen = AppColors.shadowGreen;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _inputBorderColor = AppColors.borderDark;
+  static const Color _linkColor = AppColors.linkGreen;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
@@ -512,7 +514,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               Icon(
                                 Icons.account_circle_outlined,
                                 size: w * 0.19,
-                                color: const Color(0xFF3D3D3D),
+                                color: AppColors.borderDark,
                               ),
                               SizedBox(height: h * 0.008),
                               Text(
@@ -520,7 +522,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: TextStyle(
                                   fontSize: unifiedFontSize,
                                   fontWeight: FontWeight.w500,
-                                  fontFamily: 'Times New Roman',
+                                  fontFamily: AppTextStyles.fontFamily,
                                   color: _textColor,
                                 ),
                               ),
@@ -592,7 +594,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           style: TextStyle(
                                             fontSize: unifiedFontSize,
                                             fontWeight: FontWeight.w500,
-                                            fontFamily: 'Times New Roman',
+                                            fontFamily: AppTextStyles.fontFamily,
                                           ),
                                         ),
                                 ),
@@ -607,7 +609,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     style: TextStyle(
                                       fontSize: unifiedFontSize,
                                       color: _textColor,
-                                      fontFamily: 'Times New Roman',
+                                      fontFamily: AppTextStyles.fontFamily,
                                     ),
                                   ),
                                   InkWell(
@@ -618,7 +620,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         fontSize: unifiedFontSize,
                                         color: _linkColor,
                                         decoration: TextDecoration.underline,
-                                        fontFamily: 'Times New Roman',
+                                        fontFamily: AppTextStyles.fontFamily,
                                       ),
                                     ),
                                   ),
@@ -639,7 +641,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 1.05,
                             fontWeight: FontWeight.w600,
                             color: _textColor,
-                            fontFamily: 'Times New Roman',
+                            fontFamily: AppTextStyles.fontFamily,
                           ),
                         ),
                       ),
@@ -665,7 +667,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(
             fontSize: fontSize,
             color: _textColor,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -692,7 +694,7 @@ class _LoginScreenState extends State<LoginScreen> {
         validator: validator,
         style: TextStyle(
           fontSize: fontSize,
-          fontFamily: 'Times New Roman',
+          fontFamily: AppTextStyles.fontFamily,
           color: _textColor,
         ),
         decoration: InputDecoration(
@@ -700,7 +702,7 @@ class _LoginScreenState extends State<LoginScreen> {
           hintStyle: TextStyle(
             fontSize: fontSize,
             color: Colors.grey.shade500,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
           ),
           filled: true,
           fillColor: _cardColor,
@@ -728,3 +730,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+

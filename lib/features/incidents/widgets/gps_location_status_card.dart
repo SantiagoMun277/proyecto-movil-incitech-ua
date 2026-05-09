@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 class GpsLocationStatusCard extends StatelessWidget {
   const GpsLocationStatusCard({
@@ -43,9 +45,9 @@ class GpsLocationStatusCard extends StatelessWidget {
                 : 'Ubicación GPS no registrada',
             style: TextStyle(
               fontSize: fontSize,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF222222),
+              color: AppColors.textDark,
             ),
           ),
           if (isRegistered && latitude != null && longitude != null) ...[
@@ -54,16 +56,16 @@ class GpsLocationStatusCard extends StatelessWidget {
               'Lat: ${latitude!.toStringAsFixed(6)}',
               style: TextStyle(
                 fontSize: fontSize * 0.95,
-                fontFamily: 'Times New Roman',
-                color: const Color(0xFF222222),
+                fontFamily: AppTextStyles.fontFamily,
+                color: AppColors.textDark,
               ),
             ),
             Text(
               'Lng: ${longitude!.toStringAsFixed(6)}',
               style: TextStyle(
                 fontSize: fontSize * 0.95,
-                fontFamily: 'Times New Roman',
-                color: const Color(0xFF222222),
+                fontFamily: AppTextStyles.fontFamily,
+                color: AppColors.textDark,
               ),
             ),
           ],
@@ -74,7 +76,7 @@ class GpsLocationStatusCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onOpenMap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0C7A27),
+                  backgroundColor: AppColors.primaryGreenAlt,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -85,7 +87,7 @@ class GpsLocationStatusCard extends StatelessWidget {
                   isRegistered ? 'Ver / ajustar en mapa' : 'Abrir mapa',
                   style: TextStyle(
                     fontSize: fontSize * 0.90,
-                    fontFamily: 'Times New Roman',
+                    fontFamily: AppTextStyles.fontFamily,
                   ),
                 ),
               ),
@@ -96,3 +98,5 @@ class GpsLocationStatusCard extends StatelessWidget {
     );
   }
 }
+
+

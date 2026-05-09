@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
 
 class IncidentImage extends StatefulWidget {
   const IncidentImage({
@@ -164,7 +165,7 @@ class _IncidentImageState extends State<IncidentImage>
       width: widget.width,
       height: widget.height,
       decoration: BoxDecoration(
-        color: const Color(0xFFE6E6E6),
+        color: AppColors.lightGray,
         borderRadius: BorderRadius.circular(10),
       ),
       clipBehavior: Clip.antiAlias,

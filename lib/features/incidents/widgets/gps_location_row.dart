@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 class GpsLocationRow extends StatelessWidget {
   const GpsLocationRow({
@@ -12,9 +14,6 @@ class GpsLocationRow extends StatelessWidget {
   final VoidCallback onTap;
   final bool isLoading;
 
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _borderColor = Color(0xFF4E4E4E);
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -26,8 +25,8 @@ class GpsLocationRow extends StatelessWidget {
               'Usar mi ubicación GPS',
               style: TextStyle(
                 fontSize: fontSize,
-                fontFamily: 'Times New Roman',
-                color: _textColor,
+                fontFamily: AppTextStyles.fontFamily,
+                color: AppColors.textDark,
               ),
             ),
           ),
@@ -37,8 +36,8 @@ class GpsLocationRow extends StatelessWidget {
               width: 56,
               height: 44,
               decoration: BoxDecoration(
-                color: const Color(0xFFDADADA),
-                border: Border.all(color: _borderColor, width: 1),
+                color: AppColors.mediumGray,
+                border: Border.all(color: AppColors.borderStrong, width: 1),
               ),
               child: Center(
                 child: isLoading

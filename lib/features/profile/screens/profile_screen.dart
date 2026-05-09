@@ -2,6 +2,8 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 import 'package:my_app_incitech_ua/app/routes/app_routes.dart';
 import 'package:my_app_incitech_ua/features/profile/screens/profile_expandable_dropdown.dart';
 import 'package:my_app_incitech_ua/services/auth_service.dart';
@@ -16,13 +18,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  static const Color _backgroundColor = Color(0xFFB8DEBE);
-  static const Color _cardColor = Color(0xFFE9E9E9);
-  static const Color _primaryGreen = Color(0xFF0C7A27);
-  static const Color _shadowGreen = Color(0x664FA96A);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _fieldColor = Color(0xFFF4F4F4);
-  static const Color _borderColor = Color(0xFF6A6A6A);
+  static const Color _backgroundColor = AppColors.backgroundGreen;
+  static const Color _cardColor = AppColors.panelMutedAlt;
+  static const Color _primaryGreen = AppColors.primaryGreenAlt;
+  static const Color _shadowGreen = AppColors.shadowGreen;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _fieldColor = AppColors.cardBackground;
+  static const Color _borderColor = AppColors.borderColor;
 
   final AuthService _authService = AuthService();
   final UserService _userService = UserService();
@@ -482,7 +484,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'Cambiar contraseña',
             style: TextStyle(
               fontSize: fontSize * 1.30,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               fontWeight: FontWeight.w700,
               color: _textColor,
             ),
@@ -603,7 +605,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         CircleAvatar(
           radius: 22,
-          backgroundColor: const Color(0xFFF6F6F6),
+          backgroundColor: AppColors.panelInput,
           child: Icon(
             Icons.person,
             color: Colors.blueGrey.shade700,
@@ -622,7 +624,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fontSize,
-                    fontFamily: 'Times New Roman',
+                    fontFamily: AppTextStyles.fontFamily,
                     decoration: TextDecoration.underline,
                     color: _textColor,
                   ),
@@ -632,7 +634,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Rol: $_rolUsuario',
                   style: TextStyle(
                     fontSize: fontSize,
-                    fontFamily: 'Times New Roman',
+                    fontFamily: AppTextStyles.fontFamily,
                     color: _textColor,
                   ),
                 ),
@@ -651,7 +653,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         text,
         style: TextStyle(
           fontSize: fontSize,
-          fontFamily: 'Times New Roman',
+          fontFamily: AppTextStyles.fontFamily,
           color: _textColor,
         ),
       ),
@@ -676,7 +678,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         keyboardType: keyboardType,
         style: TextStyle(
           fontSize: fontSize,
-          fontFamily: 'Times New Roman',
+          fontFamily: AppTextStyles.fontFamily,
           color: _textColor,
         ),
         decoration: InputDecoration(
@@ -686,7 +688,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           hintText: hintText,
           hintStyle: TextStyle(
             fontSize: fontSize,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
             color: Colors.grey.shade500,
           ),
           suffixIcon: suffixIcon,
@@ -747,7 +749,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 text,
                 style: TextStyle(
                   fontSize: small ? 14 : 18,
-                  fontFamily: 'Times New Roman',
+                  fontFamily: AppTextStyles.fontFamily,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -779,7 +781,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isLoggingOut ? 'Cerrando sesión...' : 'Cerrar sesión',
           style: TextStyle(
             fontSize: fontSize * 1.08,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -796,3 +798,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+
+
+

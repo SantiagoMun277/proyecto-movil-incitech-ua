@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 import 'package:my_app_incitech_ua/app/routes/app_routes.dart';
 import 'package:my_app_incitech_ua/features/incidents/models/incident_item.dart';
@@ -14,12 +16,12 @@ class IncidentsScreen extends StatefulWidget {
 }
 
 class _IncidentsScreenState extends State<IncidentsScreen> {
-  static const Color _backgroundColor = Color(0xFFB8DEBE);
-  static const Color _cardColor = Color(0xFFF2F2F2);
-  static const Color _primaryGreen = Color(0xFF0C7A27);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _searchHintColor = Color(0xFF9B9B9B);
-  static const Color _borderColor = Color(0xFF3D3D3D);
+  static const Color _backgroundColor = AppColors.backgroundGreen;
+  static const Color _cardColor = AppColors.softWhite;
+  static const Color _primaryGreen = AppColors.primaryGreenAlt;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _searchHintColor = AppColors.textMuted;
+  static const Color _borderColor = AppColors.borderDark;
 
   final TextEditingController _searchController = TextEditingController();
   final IncidentService _incidentService = IncidentService();
@@ -154,7 +156,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                             'Error al cargar los incidentes.',
                             style: TextStyle(
                               fontSize: unifiedFontSize,
-                              fontFamily: 'Times New Roman',
+                              fontFamily: AppTextStyles.fontFamily,
                               color: _textColor,
                             ),
                           ),
@@ -169,7 +171,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                             'No hay incidentes registrados.',
                             style: TextStyle(
                               fontSize: unifiedFontSize,
-                              fontFamily: 'Times New Roman',
+                              fontFamily: AppTextStyles.fontFamily,
                               color: _textColor,
                             ),
                           ),
@@ -218,7 +220,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
         onChanged: (_) => setState(() {}),
         style: TextStyle(
           fontSize: unifiedFontSize,
-          fontFamily: 'Times New Roman',
+          fontFamily: AppTextStyles.fontFamily,
           color: _textColor,
         ),
         decoration: InputDecoration(
@@ -231,7 +233,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
           hintStyle: TextStyle(
             fontSize: unifiedFontSize,
             color: _searchHintColor,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
         ),
@@ -254,7 +256,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
             'Filtrar por estado',
             style: TextStyle(
               fontSize: unifiedFontSize * 1.05,
-              fontFamily: 'Times New Roman',
+              fontFamily: AppTextStyles.fontFamily,
               color: _textColor,
             ),
           ),
@@ -283,7 +285,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                       _filterLabel(_selectedFilter),
                       style: TextStyle(
                         fontSize: unifiedFontSize,
-                        fontFamily: 'Times New Roman',
+                        fontFamily: AppTextStyles.fontFamily,
                         color: _textColor,
                       ),
                     ),
@@ -292,7 +294,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
                     width: 28,
                     height: 18,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEDEDED),
+                      color: AppColors.panelMuted,
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: const [
                         BoxShadow(
@@ -317,24 +319,24 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
           if (_isFilterExpanded) ...[
             const SizedBox(height: 10),
             _buildFilterOption(              label: 'Todos',
-              backgroundColor: const Color(0xFF84E09E),
+              backgroundColor: AppColors.chipGreen,
               onTap: () => _selectFilter(IncidentFilter.todos),
             ),
             const SizedBox(height: 9),
             _buildFilterOption(              label: 'Reportado',
-              backgroundColor: const Color(0xFFF47E7E),
+              backgroundColor: AppColors.chipRed,
               onTap: () => _selectFilter(IncidentFilter.reportado),
             ),
             const SizedBox(height: 9),
             _buildFilterOption(
               label: 'En Proceso',
-              backgroundColor: const Color(0xFFE5C469),
+              backgroundColor: AppColors.chipYellow,
               onTap: () => _selectFilter(IncidentFilter.enProceso),
             ),
             const SizedBox(height: 9),
             _buildFilterOption(
               label: 'Resuelto',
-              backgroundColor: const Color(0xFF84E09E),
+              backgroundColor: AppColors.chipGreen,
               onTap: () => _selectFilter(IncidentFilter.resuelto),
             ),
           ],
@@ -368,7 +370,7 @@ class _IncidentsScreenState extends State<IncidentsScreen> {
           label,
           style: const TextStyle(
             fontSize: 14,
-            fontFamily: 'Times New Roman',
+            fontFamily: AppTextStyles.fontFamily,
             color: Colors.black,
           ),
         ),
@@ -383,3 +385,5 @@ enum IncidentFilter {
   enProceso,
   resuelto,
 }
+
+

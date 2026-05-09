@@ -1,11 +1,13 @@
 
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
-  static const Color backgroundColor = Color(0xFFB3DFBE);
-  static const Color buttonColor = Color(0xFF0C7928);
+  static const Color backgroundColor = AppColors.backgroundGreenAlt;
+  static const Color buttonColor = AppColors.primaryGreenAltDark;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +73,7 @@ class WelcomeScreen extends StatelessWidget {
                       height: 1.12,
                       fontWeight: FontWeight.w700,
                       color: Colors.black,
-                      fontFamily: 'Times New Roman',
+                      fontFamily: AppTextStyles.fontFamily,
                     ),
                   ),
                 ),
@@ -101,7 +103,7 @@ class WelcomeScreen extends StatelessWidget {
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.40,
-                          fontFamily: 'Times New Roman',
+                          fontFamily: AppTextStyles.fontFamily,
                         ),
                       ),
                     ),
@@ -115,3 +117,4 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 }
+

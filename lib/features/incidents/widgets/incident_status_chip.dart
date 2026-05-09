@@ -1,4 +1,6 @@
 // import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 // import 'package:my_app_incitech_ua/features/incidents/models/incident_item.dart';
 
 
@@ -13,7 +15,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     final Color backgroundColor = switch (status) {
-//       IncidentStatus.reportado => const Color(0xFFF47E7E),
+//       IncidentStatus.reportado => AppColors.chipRed,
 //       IncidentStatus.enProceso => const Color(0xFFECC766),
 //       IncidentStatus.resuelto => const Color(0xFF84E5A0),
 //     };
@@ -29,7 +31,7 @@
 //         status.label,
 //         style: const TextStyle(
 //           fontSize: 14,
-//           fontFamily: 'Times New Roman',
+//           fontFamily: AppTextStyles.fontFamily,
 //           color: Colors.black,
 //         ),
 //       ),
@@ -49,17 +51,17 @@ class IncidentStatusChip extends StatelessWidget {
 
   final IncidentStatus status;
 
-  static const Color _borderColor = Color(0xFF3D3D3D);
-  static const Color _textColor = Color(0xFF222222);
+  static const Color _borderColor = AppColors.borderDark;
+  static const Color _textColor = AppColors.textDark;
 
   Color get _backgroundColor {
     switch (status) {
       case IncidentStatus.reportado:
-        return const Color(0xFFF47E7E);
+        return AppColors.chipRed;
       case IncidentStatus.enProceso:
-        return const Color(0xFFE5C469);
+        return AppColors.chipYellow;
       case IncidentStatus.resuelto:
-        return const Color(0xFF84E09E);
+        return AppColors.chipGreen;
     }
   }
 
@@ -87,10 +89,12 @@ class IncidentStatusChip extends StatelessWidget {
         status.label,
         style: const TextStyle(
           fontSize: 14,
-          fontFamily: 'Times New Roman',
+          fontFamily: AppTextStyles.fontFamily,
           color: _textColor,
         ),
       ),
     );
   }
 }
+
+

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app_incitech_ua/core/theme/app_colors.dart';
+import 'package:my_app_incitech_ua/core/theme/app_text_styles.dart';
 
 class IncidentOptionSheet {
   static Future<String?> show({
@@ -33,10 +35,10 @@ class _IncidentOptionSheetView extends StatelessWidget {
   final String selectedValue;
   final List<String> options;
 
-  static const Color _sheetColor = Color(0xFFEDEDED);
-  static const Color _fieldColor = Color(0xFFF7F7F7);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _borderColor = Color(0xFF606060);
+  static const Color _sheetColor = AppColors.panelMuted;
+  static const Color _fieldColor = AppColors.panelLightAlt;
+  static const Color _textColor = AppColors.textDark;
+  static const Color _borderColor = AppColors.borderMedium;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +61,7 @@ class _IncidentOptionSheetView extends StatelessWidget {
               title,
               style: TextStyle(
                 fontSize: fontSize * 1.05,
-                fontFamily: 'Times New Roman',
+                fontFamily: AppTextStyles.fontFamily,
                 fontWeight: FontWeight.w700,
                 color: _textColor,
               ),
@@ -80,7 +82,7 @@ class _IncidentOptionSheetView extends StatelessWidget {
                       selectedValue,
                       style: TextStyle(
                         fontSize: fontSize,
-                        fontFamily: 'Times New Roman',
+                        fontFamily: AppTextStyles.fontFamily,
                         color: _textColor,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -122,7 +124,7 @@ class _IncidentOptionSheetView extends StatelessWidget {
                         item,
                         style: TextStyle(
                           fontSize: fontSize,
-                          fontFamily: 'Times New Roman',
+                          fontFamily: AppTextStyles.fontFamily,
                           color: _textColor,
                         ),
                       ),
@@ -137,3 +139,5 @@ class _IncidentOptionSheetView extends StatelessWidget {
     );
   }
 }
+
+
